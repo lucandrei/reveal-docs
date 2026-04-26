@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=1440"/>
+  <title>Reveal — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --bg:#F4F4F5; --card:#FFFFFF; --border:#E8E8EB; --border-strong:#DCDCE0;
+      --text:#18181B; --text-2:#52525B; --text-3:#A1A1AA;
+      --accent:oklch(0.64 0.18 28); --accent-soft:oklch(0.96 0.04 28);
+      --pos:oklch(0.64 0.14 150); --neg:oklch(0.62 0.17 25); --draft:oklch(0.65 0.12 75);
+    }
+    html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-feature-settings:"cv11","ss01","ss03";}
+    .mono{font-feature-settings:"tnum","ss01";}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 0 rgba(24,24,27,.02),0 1px 2px rgba(24,24,27,.04);}
+    .hairline{border-color:var(--border);}
+    .num-tight{letter-spacing:-.02em;}
+    .num-xl{letter-spacing:-.035em;}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px;border:2px solid var(--bg);}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;}
+    .dot{width:6px;height:6px;border-radius:999px;display:inline-block;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text);transition:all .15s;white-space:nowrap;cursor:pointer;}
+    .btn:hover{background:#FAFAFA;border-color:var(--border-strong);}
+    .btn-primary{background:var(--text);color:#fff;border-color:var(--text);} .btn-primary:hover{background:#000;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;font-size:13.5px;color:var(--text-2);font-weight:500;cursor:pointer;transition:all .12s;text-decoration:none;}
+    .nav-item:hover{background:#F4F4F5;color:var(--text);}
+    .nav-item.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(24,24,27,.06);border:1px solid var(--border);}
+    .tick{font-size:10.5px;fill:#A1A1AA;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useMemo } = React;
+
+const Icon = ({d,size=16,sw=1.6,fill="none",className=""})=>(
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" className={className}>{d}</svg>
+);
+const I = {
+  home:     <Icon d={<><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></>}/>,
+  guides:   <Icon d={<><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14l4 2.5L8 19z" fill="currentColor" stroke="none"/></>}/>,
+  checklist:<Icon d={<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 10h10"/><path d="M7 14h6"/><path d="M15 14l1.5 1.5L19 12"/></>}/>,
+  settings: <Icon d={<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.3l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1A2 2 0 1 1 19.7 7l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></>}/>,
+  ext:      <Icon d={<><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/></>}/>,
+  search:   <Icon d={<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>}/>,
+  bell:     <Icon d={<><path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></>}/>,
+  plus:     <Icon d={<><path d="M12 5v14"/><path d="M5 12h14"/></>}/>,
+  chev:     <Icon d={<path d="m6 9 6 6 6-6"/>}/>,
+  chevR:    <Icon d={<path d="m9 6 6 6-6 6"/>}/>,
+  arrowUp:  <Icon d={<><path d="M7 17 17 7"/><path d="M8 7h9v9"/></>} size={12} sw={2}/>,
+  arrowDn:  <Icon d={<><path d="M17 7 7 17"/><path d="M16 17H7V8"/></>} size={12} sw={2}/>,
+  play:     <Icon d={<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>}/>,
+  dots:     <Icon d={<><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></>}/>,
+  record:   <Icon d={<><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/></>}/>,
+  sparkle:  <Icon d={<><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="M5.6 5.6 8.4 8.4"/><path d="M15.6 15.6l2.8 2.8"/><path d="M5.6 18.4 8.4 15.6"/><path d="M15.6 8.4l2.8-2.8"/></>} size={14}/>,
+  clock:    <Icon d={<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>} size={14}/>,
+  eye:      <Icon d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></>} size={14}/>,
+  flag:     <Icon d={<><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/></>} size={14}/>,
+  drop:     <Icon d={<path d="M12 21c4-3 7-6 7-10a7 7 0 1 0-14 0c0 4 3 7 7 10z"/>} size={14}/>,
+  film:     <Icon d={<><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 15h18M8 4v16M16 4v16"/></>} size={14}/>,
+};
+
+const Face = ({kind="happy",size=18})=>{
+  const colors={sad:"#E4B341",neutral:"#C4C4C8",happy:"#74C69D",love:"#E5766C"}; const c=colors[kind];
+  return(<svg width={size} height={size} viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill={c} fillOpacity=".18" stroke={c} strokeWidth="1.5"/>
+    {kind==="sad"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M8.5 16c1-1.2 2.2-1.8 3.5-1.8s2.5.6 3.5 1.8" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+    {kind==="neutral"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M9 15h6" stroke={c} strokeWidth="1.5" strokeLinecap="round"/></>}
+    {kind==="happy"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M8.5 14c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+    {kind==="love"&&<><path d="M7.5 9.5c0-1 .8-1.8 1.8-1.8.7 0 1.2.4 1.5.9.3-.5.8-.9 1.5-.9 1 0 1.8.8 1.8 1.8 0 1.6-2.3 3-3.3 3.5-1-.5-3.3-1.9-3.3-3.5z" fill={c}/><path d="M8 14c1 1 2.5 1.6 4 1.6s3-.6 4-1.6" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+  </svg>);
+};
+
+const Bubble = ({seed=1,size=36,live=false,initials})=>{
+  const palettes=[["#F4C89A","#E5876B"],["#B8D4E3","#6B8FA6"],["#D4C5E8","#8B72B8"],["#9AD4B8","#5A9E7C"],["#F0B8C4","#C96B84"],["#E8D79C","#B89A4E"],["#C4D4E8","#7A8FA6"],["#D8C4A8","#9E7E5A"]];
+  const [a,b]=palettes[seed%palettes.length]; const id=`bg${seed}`;
+  return(<div className="relative inline-block" style={{width:size,height:size}}>
+    <svg width={size} height={size} viewBox="0 0 40 40" className="rounded-full" style={{display:"block"}}>
+      <defs><radialGradient id={id} cx="0.4" cy="0.35" r="0.8"><stop offset="0" stopColor={a}/><stop offset="1" stopColor={b}/></radialGradient></defs>
+      <circle cx="20" cy="20" r="20" fill={`url(#${id})`}/>
+      <circle cx="20" cy="16" r="5.2" fill="rgba(255,255,255,0.45)"/>
+      <path d="M9 34c2-5 6-7.5 11-7.5S29 29 31 34" fill="rgba(255,255,255,0.45)"/>
+      {initials&&<text x="20" y="23" textAnchor="middle" fontFamily="Inter" fontWeight="600" fontSize="11" fill="rgba(24,24,27,0.55)">{initials}</text>}
+    </svg>
+    {live&&<span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{background:"var(--accent)",boxShadow:"0 0 0 2px #fff"}}/>}
+  </div>);
+};
+
+const Spark = ({data,stroke="#18181B",fill=false,height=32,width=96})=>{
+  const max=Math.max(...data),min=Math.min(...data);
+  const pts=data.map((v,i)=>{const x=(i/(data.length-1))*width;const y=height-((v-min)/(max-min||1))*(height-4)-2;return[x,y];});
+  const path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=path+` L ${width} ${height} L 0 ${height} Z`;
+  return(<svg width={width} height={height}>
+    {fill&&<path d={area} fill={stroke} opacity="0.08"/>}
+    <path d={path} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>);
+};
+
+const recentGuides=[
+  {id:1,title:"Get started with Acme",status:"published",steps:8,impressions:"12,480",completion:78,rating:"love",updated:"2h ago",seed:0,initials:"AK"},
+  {id:2,title:"Set up your workspace",status:"published",steps:5,impressions:"8,120",completion:84,rating:"happy",updated:"1d ago",seed:1,initials:"AK"},
+  {id:3,title:"Invite your team",status:"published",steps:4,impressions:"5,430",completion:67,rating:"happy",updated:"2d ago",seed:2,initials:"MR"},
+  {id:4,title:"Connect your first integration",status:"draft",steps:6,impressions:"—",completion:null,rating:null,updated:"3d ago",seed:3,initials:"AK"},
+  {id:5,title:"What's new in v4.2",status:"published",steps:3,impressions:"3,210",completion:41,rating:"neutral",updated:"5d ago",seed:4,initials:"JS"},
+  {id:6,title:"Billing & plan management",status:"draft",steps:7,impressions:"—",completion:null,rating:null,updated:"1w ago",seed:5,initials:"MR"},
+];
+
+const feedbackData=[
+  {user:"sarah.l@figmark.co",guide:"Get started with Acme",rating:"love",text:"Loved seeing the founder walk me through. Felt personal.",when:"12m"},
+  {user:"tom@north.io",guide:"Set up your workspace",rating:"happy",text:"Clear and quick. The video bubble didn't get in my way.",when:"1h"},
+  {user:"dev+82@lumen.app",guide:"What's new in v4.2",rating:"neutral",text:"Step 2 felt a bit long. Maybe split into two?",when:"3h"},
+];
+
+const Sidebar = ()=>(
+  <aside className="w-[244px] shrink-0 px-3 py-3 flex flex-col" style={{height:"100vh",position:"sticky",top:0}}>
+    <button className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white text-left w-full">
+      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white" style={{background:"var(--text)"}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] font-semibold truncate" style={{color:"var(--text)"}}>Figmark Studio</div>
+        <div className="text-[11px] mono" style={{color:"var(--text-3)"}}>figmark · Pro</div>
+      </div>
+      <span style={{color:"var(--text-3)"}}>{I.chev}</span>
+    </button>
+    <div className="mt-3 relative">
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{color:"var(--text-3)"}}>{I.search}</span>
+      <input placeholder="Search guides…" className="w-full bg-white border hairline rounded-lg pl-8 pr-10 py-2 text-[13px] outline-none focus:border-zinc-400"/>
+      <span className="absolute right-2 top-1/2 -translate-y-1/2 mono text-[10.5px] px-1.5 py-0.5 rounded border hairline" style={{color:"var(--text-3)",background:"#FAFAFA"}}>⌘K</span>
+    </div>
+    <nav className="mt-3 flex flex-col gap-0.5">
+      <div className="nav-item active">{I.home}<span>Home</span></div>
+      <a href="Guides.html" className="nav-item">{I.guides}<span>Guides</span><span className="ml-auto mono text-[10.5px]" style={{color:"var(--text-3)"}}>12</span></a>
+      <a href="Checklist.html" className="nav-item">{I.checklist}<span>Checklists</span></a>
+      <a href="Settings.html" className="nav-item">{I.settings}<span>Settings</span></a>
+    </nav>
+    <div className="mt-4 px-2 text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Pinned</div>
+    <nav className="mt-1 flex flex-col gap-0.5">
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Get started with Acme</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Set up your workspace</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--draft)"}}/><span>Billing &amp; plan</span></div>
+    </nav>
+    <div className="mt-auto flex flex-col gap-2">
+      <div className="card p-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.ext}</div>
+          <div className="flex-1">
+            <div className="text-[12.5px] font-semibold">Reveal for Chrome</div>
+            <div className="text-[11px]" style={{color:"var(--text-2)"}}>v2.4.1 — up to date</div>
+          </div>
+        </div>
+        <button className="btn w-full mt-2.5 justify-center text-[12.5px]">Open editor</button>
+      </div>
+      <div className="flex items-center gap-2 px-1.5 py-1.5">
+        <Bubble seed={7} size={28} initials="AK"/>
+        <div className="flex-1 min-w-0">
+          <div className="text-[12.5px] font-medium truncate">Alex Kowalski</div>
+          <div className="text-[11px] mono truncate" style={{color:"var(--text-3)"}}>alex@figmark.co</div>
+        </div>
+        <button className="p-1 rounded hover:bg-zinc-100" style={{color:"var(--text-3)"}}>{I.dots}</button>
+      </div>
+    </div>
+  </aside>
+);
+
+const Kpi = ({label,value,delta,deltaKind="pos",sub,sparkData,icon})=>(
+  <div className="card p-4 flex flex-col gap-3 min-w-0">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5 text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}><span>{icon}</span><span>{label}</span></div>
+      <span style={{color:"var(--text-3)"}}>{I.dots}</span>
+    </div>
+    <div className="flex items-end gap-2">
+      <div className="text-[30px] font-semibold num-xl leading-none">{value}</div>
+      {sub&&<div className="text-[12px] pb-1" style={{color:"var(--text-3)"}}>{sub}</div>}
+    </div>
+    <div className="flex items-center justify-between">
+      <div className="chip" style={{background:deltaKind==="pos"?"oklch(0.96 0.05 150)":deltaKind==="neg"?"oklch(0.96 0.04 25)":"#F4F4F5",color:deltaKind==="pos"?"var(--pos)":deltaKind==="neg"?"var(--neg)":"var(--text-2)"}}>
+        {deltaKind==="pos"?I.arrowUp:deltaKind==="neg"?I.arrowDn:null}
+        <span className="mono">{delta}</span>
+      </div>
+      {sparkData&&<Spark data={sparkData} stroke={deltaKind==="pos"?"oklch(0.64 0.14 150)":"#71717A"} fill height={28} width={84}/>}
+    </div>
+  </div>
+);
+
+const PerformerCard = ({kind="best",title,steps,completion,starts,rating,seed,note,dropStep})=>{
+  const accentColor=kind==="best"?"var(--pos)":"var(--neg)";
+  const bgTint=kind==="best"?"oklch(0.97 0.03 150)":"oklch(0.97 0.02 25)";
+  return(
+    <div className="card p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="chip" style={{background:bgTint,color:accentColor}}>
+            {kind==="best"?I.sparkle:I.flag}
+            <span>{kind==="best"?"Top performer":"Needs attention"}</span>
+          </span>
+          <span className="text-[11px] mono" style={{color:"var(--text-3)"}}>this week</span>
+        </div>
+        <button className="text-[12.5px] flex items-center gap-0.5" style={{color:"var(--text-2)"}}>Open {I.chevR}</button>
+      </div>
+      <div className="mt-4 flex items-center gap-3">
+        <Bubble seed={seed} size={44}/>
+        <div className="min-w-0">
+          <div className="text-[15.5px] font-semibold truncate">{title}</div>
+          <div className="text-[12px] mono" style={{color:"var(--text-3)"}}>{steps} steps · published</div>
+        </div>
+        <div className="ml-auto"><Face kind={rating} size={28}/></div>
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Completion</div><div className="text-[20px] font-semibold num-tight mt-0.5">{completion}%</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Starts</div><div className="text-[20px] font-semibold num-tight mt-0.5">{starts}</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>vs last wk</div><div className="text-[20px] font-semibold num-tight mt-0.5" style={{color:accentColor}}>{kind==="best"?"+12.4%":"−8.1%"}</div></div>
+      </div>
+      <div className="mt-5">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Step funnel</div>
+          {dropStep&&<div className="text-[11px] mono" style={{color:"var(--neg)"}}>↓ drop at step {dropStep}</div>}
+        </div>
+        <div className="flex items-end gap-1 h-[52px]">
+          {(kind==="best"?[100,94,91,88,85,82,80,78]:[100,77,60,54,49,45,41]).map((v,i)=>{
+            const isDrop=dropStep&&i+1===dropStep;
+            return(<div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <div className="w-full rounded-sm" style={{height:`${(v/100)*44}px`,background:isDrop?"var(--neg)":kind==="best"?"var(--text)":"#52525B",opacity:isDrop?0.9:(0.35+(v/100)*0.65)}}/>
+              <div className="text-[9.5px] mono" style={{color:"var(--text-3)"}}>{i+1}</div>
+            </div>);
+          })}
+        </div>
+      </div>
+      {note&&<div className="mt-4 text-[12.5px] p-2.5 rounded-md border hairline flex items-start gap-2" style={{background:"#FAFAFA",color:"var(--text-2)"}}>
+        <span style={{color:"var(--accent)",marginTop:2}}>{I.sparkle}</span><span>{note}</span>
+      </div>}
+    </div>
+  );
+};
+
+const StatusChip = ({s})=>{
+  const map={
+    published:{bg:"oklch(0.96 0.05 150)",fg:"var(--pos)",label:"Published",dot:"var(--pos)"},
+    draft:{bg:"oklch(0.97 0.03 75)",fg:"var(--draft)",label:"Draft",dot:"var(--draft)"},
+  }[s];
+  return <span className="chip" style={{background:map.bg,color:map.fg}}><span className="dot" style={{background:map.dot}}/>{map.label}</span>;
+};
+
+const RecentGuides = ()=>(
+  <div className="card">
+    <div className="flex items-center justify-between px-5 py-4 border-b hairline">
+      <div>
+        <h3 className="text-[15px] font-semibold">Recent guides</h3>
+        <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Last edited across your workspace</div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button className="btn"><span>{I.plus}</span>New guide</button>
+        <a href="Guides.html" className="btn">All guides {I.chevR}</a>
+      </div>
+    </div>
+    <div className="grid grid-cols-[minmax(0,2.4fr)_90px_110px_1fr_110px_90px_36px] gap-4 px-5 py-2.5 text-[10.5px] mono uppercase tracking-wider border-b hairline" style={{color:"var(--text-3)",background:"#FAFAFA"}}>
+      <div>Guide</div><div>Steps</div><div>Impressions</div><div>Completion</div><div>Rating</div><div>Updated</div><div/>
+    </div>
+    <div>
+      {recentGuides.map((g,i)=>(
+        <div key={g.id} className="grid grid-cols-[minmax(0,2.4fr)_90px_110px_1fr_110px_90px_36px] gap-4 px-5 py-3 items-center border-b hairline last:border-0 hover:bg-[#FAFAFA] group">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative">
+              <Bubble seed={g.seed} size={34} initials={g.initials}/>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center border hairline"><span style={{color:"var(--text)"}}>{I.play}</span></div>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13.5px] font-medium truncate">{g.title}</div>
+              <div className="mt-0.5"><StatusChip s={g.status}/></div>
+            </div>
+          </div>
+          <div className="text-[13px] mono" style={{color:"var(--text-2)"}}>{g.steps}</div>
+          <div className="text-[13px] mono" style={{color:"var(--text-2)"}}>{g.impressions}</div>
+          <div>
+            {g.completion!==null?(
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 rounded-full bg-zinc-100 overflow-hidden max-w-[140px]">
+                  <div className="h-full rounded-full" style={{width:`${g.completion}%`,background:g.completion>=70?"var(--pos)":g.completion>=50?"var(--draft)":"var(--neg)"}}/>
+                </div>
+                <div className="mono text-[12.5px] w-10">{g.completion}%</div>
+              </div>
+            ):<span className="mono text-[12px]" style={{color:"var(--text-3)"}}>—</span>}
+          </div>
+          <div>{g.rating?<Face kind={g.rating} size={20}/>:<span className="mono text-[12px]" style={{color:"var(--text-3)"}}>—</span>}</div>
+          <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>{g.updated}</div>
+          <button className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white" style={{color:"var(--text-3)"}}>{I.dots}</button>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const FeedbackCard = ()=>(
+  <div className="card p-5">
+    <div className="flex items-center justify-between mb-3">
+      <div>
+        <h3 className="text-[15px] font-semibold">Latest feedback</h3>
+        <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>From users who finished a guide</div>
+      </div>
+      <button className="text-[12.5px] flex items-center gap-0.5" style={{color:"var(--text-2)"}}>View all {I.chevR}</button>
+    </div>
+    <div className="flex flex-col gap-2.5">
+      {feedbackData.map((f,i)=>(
+        <div key={i} className="p-3 rounded-lg border hairline flex items-start gap-3" style={{background:"#FAFAFA"}}>
+          <Face kind={f.rating} size={22}/>
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px]" style={{color:"var(--text)"}}>"{f.text}"</div>
+            <div className="mt-1 flex items-center gap-2 text-[11.5px] mono" style={{color:"var(--text-3)"}}>
+              <span className="truncate">{f.user}</span><span>·</span>
+              <span className="truncate" style={{color:"var(--text-2)"}}>{f.guide}</span>
+              <span className="ml-auto">{f.when}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const App = ()=>(
+  <div className="min-h-screen flex">
+    <Sidebar/>
+    <main className="flex-1 min-w-0 py-6 pr-6">
+      <div className="max-w-[1180px] mx-auto px-6 flex flex-col gap-5">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-[28px] font-semibold num-tight">Good afternoon, Alex</h1>
+            <div className="text-[13.5px] mt-1" style={{color:"var(--text-2)"}}>
+              <span className="mono font-medium" style={{color:"var(--text)"}}>3 guides</span> gained traction this week.
+              <span className="mono font-medium" style={{color:"var(--neg)"}}> 1 guide</span> is losing users at step 2.
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="btn"><span style={{color:"var(--text-3)"}}>{I.clock}</span>Last 14 days {I.chev}</button>
+            <button className="btn"><span>{I.bell}</span></button>
+            <button className="btn btn-primary"><span>{I.record}</span>New guide</button>
+          </div>
+        </div>
+
+        {/* KPI row */}
+        <div className="grid grid-cols-4 gap-4">
+          <Kpi label="Impressions"     value="48,210" delta="+12.4%" deltaKind="pos" sparkData={[20,24,22,28,30,34,40,46]} icon={I.eye}/>
+          <Kpi label="Guide starts"    value="10,480" delta="+14.2%" deltaKind="pos" sparkData={[12,14,16,20,24,26,30,34]} icon={I.play}/>
+          <Kpi label="Completion rate" value="75.6%"  delta="+2.1pp" deltaKind="pos" sparkData={[60,62,64,68,70,72,74,76]} icon={I.flag}/>
+          <Kpi label="Avg. rating"     value="4.3" sub="/ 5.0" delta="+0.2" deltaKind="pos" sparkData={[40,42,42,44,44,46,46,48]} icon={I.sparkle}/>
+        </div>
+
+        {/* Top / Worst */}
+        <div className="grid grid-cols-2 gap-4">
+          <PerformerCard kind="best" title="Get started with Acme" steps={8} completion={78} starts="4,210" rating="love" seed={0} note="Step 1 (founder intro) is rewatched 2.1× on average — personal video is clearly landing."/>
+          <PerformerCard kind="worst" title="What's new in v4.2" steps={7} completion={41} starts="1,980" rating="neutral" seed={4} dropStep={2} note="23% drop at step 2. The highlighted element may have moved — try remapping it."/>
+        </div>
+
+        {/* Recent + feedback */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="col-span-2"><RecentGuides/></div>
+          <FeedbackCard/>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 pb-6 text-[11.5px] mono" style={{color:"var(--text-3)"}}>
+          <div>Reveal · v2.4.1</div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5"><span className="dot" style={{background:"var(--pos)"}}/>All systems operational</span>
+            <span>Docs</span><span>Changelog</span><span>Keyboard shortcuts ⌘/</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

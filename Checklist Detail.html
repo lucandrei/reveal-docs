@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>Reveal — New user onboarding</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#F4F4F5;--card:#fff;--border:#E8E8EB;--border-strong:#DCDCE0;--text:#18181B;--text-2:#52525B;--text-3:#A1A1AA;--accent:oklch(0.64 0.18 28);--accent-soft:oklch(0.96 0.04 28);--pos:oklch(0.64 0.14 150);--neg:oklch(0.62 0.17 25);--draft:oklch(0.65 0.12 75);}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-feature-settings:"cv11","ss01";}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px rgba(24,24,27,.04);}
+.hairline{border-color:var(--border);}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;}
+.dot{width:6px;height:6px;border-radius:999px;display:inline-block;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text);transition:all .15s;white-space:nowrap;cursor:pointer;}
+.btn:hover{background:#FAFAFA;border-color:var(--border-strong);}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text);} .btn-primary:hover{background:#000;}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);} .btn-accent:hover{filter:brightness(.96);}
+.btn-danger{color:var(--neg);border-color:oklch(0.9 0.08 25);} .btn-danger:hover{background:oklch(0.97 0.03 25);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;font-size:13.5px;color:var(--text-2);font-weight:500;cursor:pointer;transition:all .12s;}
+.nav-item:hover{background:#F4F4F5;color:var(--text);} .nav-item.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(24,24,27,.06);border:1px solid var(--border);}
+.tab{padding:8px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--text);border-color:var(--text);}
+.switch{width:32px;height:18px;border-radius:999px;background:#D4D4D8;position:relative;transition:.15s;flex-shrink:0;cursor:pointer;}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:999px;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.15);}
+.switch.on{background:var(--text);} .switch.on::after{left:16px;}
+.radio{width:16px;height:16px;border:1.5px solid #C4C4C8;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.radio.on{border-color:var(--text);} .radio.on::after{content:"";width:8px;height:8px;background:var(--text);border-radius:999px;}
+.mono{font-feature-settings:"tnum";}
+.mock-code{font-family:ui-monospace,Menlo,monospace;font-size:12px;}
+.drag-handle{cursor:grab;} .drag-handle:active{cursor:grabbing;}
+::-webkit-scrollbar{width:10px;} ::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px;border:2px solid var(--bg);}
+@keyframes pulseRec{0%,100%{opacity:1;}50%{opacity:.4;}} .rec{animation:pulseRec 1.4s ease-in-out infinite;}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState, useMemo} = React;
+
+const Icon = ({d,size=16,sw=1.6,fill="none"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>);
+const I={
+  home:<Icon d={<><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></>}/>,
+  guides:<Icon d={<><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14l4 2.5L8 19z" fill="currentColor" stroke="none"/></>}/>,
+  checklist:<Icon d={<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 10h10"/><path d="M7 14h6"/><path d="M15 14l1.5 1.5L19 12"/></>}/>,
+  settings:<Icon d={<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.3l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1A2 2 0 1 1 19.7 7l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></>}/>,
+  ext:<Icon d={<><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/></>}/>,
+  search:<Icon d={<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>}/>,
+  chev:<Icon d={<path d="m6 9 6 6 6-6"/>}/>,
+  chevR:<Icon d={<path d="m9 6 6 6-6 6"/>} size={14}/>,
+  dots:<Icon d={<><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></>}/>,
+  plus:<Icon d={<><path d="M12 5v14"/><path d="M5 12h14"/></>}/>,
+  back:<Icon d={<path d="m15 6-6 6 6 6"/>}/>,
+  up:<Icon d={<path d="m18 15-6-6-6 6"/>} size={14} sw={2}/>,
+  down:<Icon d={<path d="m6 9 6 6 6-6"/>} size={14} sw={2}/>,
+  trash:<Icon d={<><path d="M4 7h16"/><path d="M6 7v13h12V7"/><path d="M9 7V4h6v3"/></>} size={14}/>,
+  copy:<Icon d={<><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></>} size={14}/>,
+  link:<Icon d={<><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></>} size={14}/>,
+  grip:<Icon d={<><circle cx="9" cy="6" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="18" r="1" fill="currentColor"/><circle cx="15" cy="6" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="18" r="1" fill="currentColor"/></>} size={14}/>,
+  eye:<Icon d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></>} size={14}/>,
+  flag:<Icon d={<><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/></>} size={14}/>,
+  clock:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>} size={14}/>,
+  sparkle:<Icon d={<><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/></>} size={14}/>,
+  user:<Icon d={<><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></>} size={14}/>,
+  extOpen:<Icon d={<><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></>} size={14}/>,
+  globe:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18-3-3-3-15 0-18z"/></>} size={14}/>,
+  warn:<Icon d={<><path d="M12 3 2 20h20z"/><path d="M12 10v5"/><circle cx="12" cy="17.5" r=".5" fill="currentColor"/></>} size={12}/>,
+  check:<Icon d={<path d="m5 12 5 5L20 7"/>} size={14} sw={2}/>,
+  widget:<Icon d={<><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 2v5"/><path d="M8 2v5"/><path d="M2 12h20"/><path d="M7 16h2"/><path d="M11 16h2"/><path d="M15 16h2"/></>} size={14}/>,
+};
+
+const Bubble = ({seed=0,size=32,initials})=>{
+  const P=[["#F4C89A","#E5876B"],["#B8D4E3","#6B8FA6"],["#D4C5E8","#8B72B8"],["#9AD4B8","#5A9E7C"],["#F0B8C4","#C96B84"],["#E8D79C","#B89A4E"],["#C4D4E8","#7A8FA6"],["#D8C4A8","#9E7E5A"]];
+  const [a,b]=P[seed%P.length]; const id=`bb${seed}${size}`;
+  return(<svg width={size} height={size} viewBox="0 0 40 40" className="rounded-full block flex-shrink-0">
+    <defs><radialGradient id={id} cx=".4" cy=".35" r=".8"><stop offset="0" stopColor={a}/><stop offset="1" stopColor={b}/></radialGradient></defs>
+    <circle cx="20" cy="20" r="20" fill={`url(#${id})`}/>
+    <circle cx="20" cy="16" r="5.2" fill="rgba(255,255,255,.45)"/>
+    <path d="M9 34c2-5 6-7.5 11-7.5S29 29 31 34" fill="rgba(255,255,255,.45)"/>
+    {initials&&<text x="20" y="23" textAnchor="middle" fontFamily="Inter" fontWeight="600" fontSize="11" fill="rgba(24,24,27,.55)">{initials}</text>}
+  </svg>);
+};
+
+const GuidePoster = ({seed,size=40})=>{
+  const bgs=[["#FDF7EC","#F3E1BF"],["#EEF3FB","#D8E4F4"],["#F3ECFB","#DDCEF0"],["#ECF7F1","#CDE5D7"],["#FBECEF","#F2CDD5"],["#FAF4E0","#EADEA9"],["#F0F4F9","#D6DEE8"],["#F6F1EB","#E2D4C1"]];
+  const [a,b]=bgs[seed%bgs.length];
+  return <div className="rounded-md shrink-0 relative overflow-hidden" style={{width:size,height:Math.round(size*.625),background:`linear-gradient(135deg,${a} 0%,${b} 100%)`}}>
+    <div className="absolute bottom-0.5 right-0.5"><Bubble seed={seed} size={10} initials="AK"/></div>
+  </div>;
+};
+
+/* ── Sidebar ── */
+const Sidebar = ()=>(
+  <aside className="w-[244px] shrink-0 px-3 py-3 flex flex-col" style={{height:"100vh",position:"sticky",top:0}}>
+    <button className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white text-left w-full">
+      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white" style={{background:"var(--text)"}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
+      </div>
+      <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold truncate">Figmark Studio</div><div className="text-[11px] mono" style={{color:"var(--text-3)"}}>figmark · Pro</div></div>
+      <span style={{color:"var(--text-3)"}}>{I.chev}</span>
+    </button>
+    <div className="mt-3 relative">
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{color:"var(--text-3)"}}>{I.search}</span>
+      <input placeholder="Search guides…" className="w-full bg-white border hairline rounded-lg pl-8 pr-3 py-2 text-[13px] outline-none"/>
+    </div>
+    <nav className="mt-3 flex flex-col gap-0.5">
+      <a href="Home.html" className="nav-item">{I.home}<span>Home</span></a>
+      <a href="Guides.html" className="nav-item">{I.guides}<span>Guides</span><span className="ml-auto mono text-[10.5px]" style={{color:"var(--text-3)"}}>12</span></a>
+      <a href="Checklist.html" className="nav-item active">{I.checklist}<span>Checklists</span></a>
+      <a href="Settings.html" className="nav-item">{I.settings}<span>Settings</span></a>
+    </nav>
+    <div className="mt-4 px-2 text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Pinned</div>
+    <nav className="mt-1 flex flex-col gap-0.5">
+      <div className="nav-item" style={{background:"#fff",border:"1px solid var(--border)"}}><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Onboarding checklist</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--draft)"}}/><span>Advanced features</span></div>
+    </nav>
+    <div className="mt-auto flex flex-col gap-2">
+      <div className="card p-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.ext}</div>
+          <div className="flex-1"><div className="text-[12.5px] font-semibold">Reveal for Chrome</div><div className="text-[11px]" style={{color:"var(--text-2)"}}>Connected · v2.4.1</div></div>
+        </div>
+        <button className="btn w-full mt-2.5 justify-center text-[12.5px]">Open editor</button>
+      </div>
+      <div className="flex items-center gap-2 px-1.5 py-1.5">
+        <Bubble seed={7} size={28} initials="AK"/>
+        <div className="flex-1 min-w-0"><div className="text-[12.5px] font-medium truncate">Alex Kowalski</div><div className="text-[11px] mono truncate" style={{color:"var(--text-3)"}}>alex@figmark.co</div></div>
+        <button className="p-1 rounded hover:bg-zinc-100" style={{color:"var(--text-3)"}}>{I.dots}</button>
+      </div>
+    </div>
+  </aside>
+);
+
+/* ── Data ── */
+const INITIAL_GUIDES = [
+  {id:1,title:"Get started with Acme",steps:8,completion:78,completionInList:72,starts:3840,seed:0,drop:null},
+  {id:2,title:"Set up your workspace",steps:5,completion:84,completionInList:61,starts:2780,seed:1,drop:null},
+  {id:3,title:"Invite your team",steps:4,completion:67,completionInList:54,starts:2100,seed:2,drop:null},
+  {id:4,title:"Connect your first integration",steps:6,completion:41,completionInList:38,starts:1540,seed:3,drop:2},
+];
+
+/* ── KPI card ── */
+const Kpi = ({label,value,sub,delta,deltaKind,icon})=>(
+  <div className="card p-4">
+    <div className="text-[11px] mono uppercase tracking-wider flex items-center gap-1.5" style={{color:"var(--text-3)"}}>{icon}{label}</div>
+    <div className="flex items-end gap-1.5 mt-2">
+      <div className="text-[24px] font-semibold mono" style={{letterSpacing:"-.02em"}}>{value}</div>
+      {sub && <div className="text-[12px] pb-0.5" style={{color:"var(--text-3)"}}>{sub}</div>}
+    </div>
+    {delta && <div className="mt-2 chip" style={{background: deltaKind==="pos"?"oklch(0.96 0.05 150)":"oklch(0.97 0.03 25)",color: deltaKind==="pos"?"var(--pos)":"var(--neg)"}}>
+      <span className="mono">{delta}</span>
+    </div>}
+  </div>
+);
+
+/* ── Hero ── */
+const Hero = ({published,setPublished})=>(
+  <div className="card p-5 flex gap-5 items-start">
+    {/* checklist icon */}
+    <div className="w-[120px] h-[75px] rounded-lg shrink-0 flex items-center justify-center relative overflow-hidden" style={{background:"linear-gradient(135deg,#F4F4F5 0%,#E4E4E7 100%)"}}>
+      <div className="flex flex-col gap-1.5 px-3 w-full">
+        {[78,61,54,38].map((w,i)=>(
+          <div key={i} className="flex items-center gap-2">
+            <div className="w-3.5 h-3.5 rounded-sm flex items-center justify-center" style={{background: i===0?"var(--text)":"#E4E4E7",flexShrink:0}}>
+              {i===0 && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="m5 12 5 5L20 7"/></svg>}
+            </div>
+            <div className="flex-1 h-1.5 rounded-full bg-zinc-200 overflow-hidden">
+              <div className="h-full rounded-full" style={{width:`${w}%`,background: i===0?"var(--text)":"#C4C4C8"}}/>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="absolute bottom-1.5 right-1.5 flex -space-x-1">
+        <Bubble seed={0} size={14} initials="AK"/>
+        <Bubble seed={1} size={14} initials="MR"/>
+        <Bubble seed={2} size={14} initials="JS"/>
+      </div>
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2 text-[12.5px]" style={{color:"var(--text-3)"}}>
+        <a href="Checklist.html" className="hover:text-zinc-900">Checklists</a>
+        <span>/</span>
+        <span style={{color:"var(--text)"}}>New user onboarding</span>
+      </div>
+      <div className="flex items-center gap-3 mt-1">
+        <h1 className="text-[24px] font-semibold" style={{letterSpacing:"-.02em"}}>New user onboarding</h1>
+        <span className="chip" style={{background: published?"oklch(0.96 0.05 150)":"oklch(0.97 0.03 75)",color: published?"var(--pos)":"var(--draft)"}}>
+          <span className="dot" style={{background: published?"var(--pos)":"var(--draft)"}}/>{published?"Published":"Draft"}
+        </span>
+      </div>
+      <div className="mt-1 text-[12.5px]" style={{color:"var(--text-2)"}}>Walk new signups through everything they need to be productive on day one.</div>
+      <div className="mt-1.5 flex items-center gap-2 text-[12.5px]" style={{color:"var(--text-2)"}}>
+        <Bubble seed={0} size={16} initials="AK"/>
+        <span>Alex Kowalski</span><span>·</span>
+        <span>4 guides · target: New users</span><span>·</span>
+        <span>Updated 2h ago</span>
+      </div>
+      <div className="mt-4 flex items-end gap-5">
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Starts</div><div className="text-[18px] font-semibold mono" style={{letterSpacing:"-.02em"}}>3,840</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Full completion</div><div className="text-[18px] font-semibold mono" style={{letterSpacing:"-.02em",color:"var(--pos)"}}>38%</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Avg. time to finish</div><div className="text-[18px] font-semibold mono" style={{letterSpacing:"-.02em"}}>4d 2h</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Guides</div><div className="text-[18px] font-semibold mono" style={{letterSpacing:"-.02em"}}>4</div></div>
+        <div className="ml-auto flex items-center gap-2">
+          <button onClick={()=>setPublished(!published)} className="btn">{published?"Unpublish":"Publish"}</button>
+          <button className="btn">{I.copy}Duplicate</button>
+          <button className="btn btn-accent">{I.plus}Add guide</button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ── Tabs ── */
+const Tabs = ({active,setActive})=>(
+  <div className="flex items-center border-b hairline sticky top-0 z-20 -mx-6 px-6" style={{background:"var(--bg)"}}>
+    {[{id:"overview",l:"Overview"},{id:"guides",l:"Guides",n:4},{id:"embed",l:"Embed"},{id:"behavior",l:"Behavior"}].map(t=>(
+      <div key={t.id} onClick={()=>setActive(t.id)} className={"tab " + (active===t.id?"active":"")}>
+        {t.l}{t.n && <span className="mono text-[11px] ml-1" style={{color:"var(--text-3)"}}>{t.n}</span>}
+      </div>
+    ))}
+  </div>
+);
+
+/* ── OVERVIEW TAB ── */
+const OverviewTab = ()=>{
+  const guides = INITIAL_GUIDES;
+  const W=900, H=200, pad={l:40,r:16,t:12,b:28};
+  const xs = guides.map((g,i)=> pad.l + (i/(guides.length-1||1))*(W-pad.l-pad.r));
+  const ys = guides.map(g=> pad.t + (H-pad.t-pad.b)*(1 - g.completionInList/100));
+  const path = xs.map((x,i)=>`${i===0?"M":"L"} ${x} ${ys[i]}`).join(" ");
+  const area = `M ${xs[0]} ${H-pad.b} ` + xs.map((x,i)=>`L ${x} ${ys[i]}`).join(" ") + ` L ${xs[xs.length-1]} ${H-pad.b} Z`;
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* KPIs */}
+      <div className="grid grid-cols-5 gap-4">
+        <Kpi label="Starts"          value="3,840"  delta="+8.4%" deltaKind="pos" icon={I.user}/>
+        <Kpi label="Full completion" value="38%"    delta="+3.1pp" deltaKind="pos" icon={I.flag}/>
+        <Kpi label="Avg. time"       value="4d 2h"  delta="−6h" deltaKind="pos" icon={I.clock}/>
+        <Kpi label="Guides finished" value="2.4"    sub="avg / user" delta="+0.3" deltaKind="pos" icon={I.checklist}/>
+        <Kpi label="Avg. rating"     value="4.3"    sub="/ 5.0" delta="+0.1" deltaKind="pos" icon={I.sparkle}/>
+      </div>
+
+      {/* guide-by-guide funnel */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-[15px] font-semibold">Checklist funnel</h3>
+            <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>% of users who started the checklist that completed each guide</div>
+          </div>
+          <button className="btn">Last 30 days {I.chev}</button>
+        </div>
+
+        {/* SVG curve */}
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block">
+          <defs>
+            <linearGradient id="clArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="var(--accent)" stopOpacity=".18"/>
+              <stop offset="1" stopColor="var(--accent)" stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+          {[0,25,50,75,100].map(v=>{
+            const y = pad.t + (H-pad.t-pad.b)*(1-v/100);
+            return <g key={v}><line x1={pad.l} x2={W-pad.r} y1={y} y2={y} stroke="#E8E8EB" strokeDasharray="3 4"/><text x={8} y={y+3} fontSize="10" fill="#A1A1AA" fontFamily="ui-monospace">{v}%</text></g>;
+          })}
+          <path d={area} fill="url(#clArea)"/>
+          <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {guides.map((g,i)=>(
+            <circle key={g.id} cx={xs[i]} cy={ys[i]} r="5" fill="#fff" stroke="var(--accent)" strokeWidth="2.5"/>
+          ))}
+        </svg>
+
+        {/* guide rows below chart */}
+        <div className="mt-3 flex flex-col gap-1.5">
+          {guides.map((g,i)=>(
+            <div key={g.id} className="grid grid-cols-[28px_minmax(0,1fr)_120px_80px_100px] items-center gap-3 py-2 px-3 rounded-lg hover:bg-[#FAFAFA] group">
+              <div className="text-[12px] font-semibold mono" style={{color:"var(--text-3)"}}>{String(i+1).padStart(2,"0")}</div>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <GuidePoster seed={g.seed} size={36}/>
+                <div className="text-[13.5px] font-medium truncate">{g.title}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+                  <div className="h-full rounded-full" style={{width:`${g.completionInList}%`,background: g.completionInList>=70?"var(--pos)":g.completionInList>=50?"var(--draft)":"var(--neg)"}}/>
+                </div>
+                <div className="text-[12.5px] mono w-9 text-right font-medium">{g.completionInList}%</div>
+              </div>
+              <div className="text-[12.5px] mono" style={{color:"var(--text-3)"}}>{g.starts.toLocaleString()} starts</div>
+              {g.drop
+                ? <span className="chip" style={{background:"oklch(0.97 0.03 25)",color:"var(--neg)",fontSize:11}}>{I.warn}Step {g.drop}</span>
+                : <span className="mono text-[12px]" style={{color:"var(--text-3)"}}>—</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* drop-off insight */}
+      <div className="card p-4 flex items-start gap-3" style={{borderColor:"oklch(0.92 0.04 28)",background:"oklch(0.98 0.01 28)"}}>
+        <span style={{color:"var(--accent)",marginTop:2}}>{I.sparkle}</span>
+        <div>
+          <div className="text-[13.5px] font-semibold">Biggest drop-off between guides</div>
+          <div className="text-[12.5px] mt-0.5" style={{color:"var(--text-2)"}}>
+            <span className="font-medium" style={{color:"var(--text)"}}>34% of users</span> who finish "Set up your workspace" don't start "Invite your team." Consider reducing the gap — maybe trigger guide 3 immediately after guide 2 completes.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── GUIDES TAB (reorderable) ── */
+const GuidesTab = ()=>{
+  const [guides,setGuides] = useState(INITIAL_GUIDES);
+  const move = (i, dir)=>{
+    const j = i+dir;
+    if(j<0||j>=guides.length) return;
+    const next=[...guides];
+    [next[i],next[j]]=[next[j],next[i]];
+    setGuides(next);
+  };
+  const remove = (id) => setGuides(g=>g.filter(x=>x.id!==id));
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between px-5 py-4 border-b hairline">
+        <div>
+          <h3 className="text-[15px] font-semibold">Guides in this checklist</h3>
+          <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Drag or use arrows to reorder. Users complete them in this sequence.</div>
+        </div>
+        <button className="btn btn-accent">{I.plus}Add guide</button>
+      </div>
+
+      {/* column headers */}
+      <div className="grid grid-cols-[32px_40px_minmax(0,2fr)_100px_110px_80px_120px_80px] gap-3 px-5 py-2.5 text-[10.5px] mono uppercase tracking-wider border-b hairline" style={{color:"var(--text-3)",background:"#FAFAFA"}}>
+        <div/>
+        <div>#</div>
+        <div>Guide</div>
+        <div>Steps</div>
+        <div>Impressions</div>
+        <div>Completion</div>
+        <div>Status in list</div>
+        <div/>
+      </div>
+
+      {guides.map((g,i)=>(
+        <div key={g.id} className="grid grid-cols-[32px_40px_minmax(0,2fr)_100px_110px_80px_120px_80px] gap-3 px-5 py-3 items-center border-b hairline last:border-0 hover:bg-[#FAFAFA] group">
+          {/* drag handle */}
+          <div className="drag-handle text-zinc-300 group-hover:text-zinc-400 flex items-center">{I.grip}</div>
+
+          {/* order number */}
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold" style={{background:"var(--text)",color:"#fff"}}>{i+1}</div>
+
+          {/* title */}
+          <div className="flex items-center gap-3 min-w-0">
+            <GuidePoster seed={g.seed} size={44}/>
+            <div className="min-w-0">
+              <a href="Guide Detail.html" className="text-[13.5px] font-medium truncate block hover:underline" style={{color:"var(--text)"}}>{g.title}</a>
+              <div className="text-[11.5px] mono mt-0.5" style={{color:"var(--text-3)"}}>{g.steps} steps</div>
+            </div>
+          </div>
+
+          <div className="text-[13px] mono" style={{color:"var(--text-2)"}}>{g.steps} steps</div>
+          <div className="text-[13px] mono" style={{color:"var(--text-2)"}}>{g.starts.toLocaleString()}</div>
+
+          {/* completion bar */}
+          <div>
+            <div className="h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+              <div className="h-full rounded-full" style={{width:`${g.completionInList}%`,background: g.completionInList>=70?"var(--pos)":g.completionInList>=50?"var(--draft)":"var(--neg)"}}/>
+            </div>
+            <div className="text-[11px] mono mt-0.5" style={{color:"var(--text-3)"}}>{g.completionInList}%</div>
+          </div>
+
+          {/* status in list */}
+          {g.drop
+            ? <span className="chip" style={{background:"oklch(0.97 0.03 25)",color:"var(--neg)",fontSize:11}}>{I.warn}Leaks step {g.drop}</span>
+            : <span className="chip" style={{background:"oklch(0.96 0.05 150)",color:"var(--pos)",fontSize:11}}>{I.check}Healthy</span>}
+
+          {/* actions */}
+          <div className="flex items-center gap-1">
+            <button onClick={()=>move(i,-1)} disabled={i===0} className={"p-1.5 rounded hover:bg-white " + (i===0?"opacity-20 pointer-events-none":"")} style={{color:"var(--text-3)"}}>{I.up}</button>
+            <button onClick={()=>move(i,1)} disabled={i===guides.length-1} className={"p-1.5 rounded hover:bg-white " + (i===guides.length-1?"opacity-20 pointer-events-none":"")} style={{color:"var(--text-3)"}}>{I.down}</button>
+            <button onClick={()=>remove(g.id)} className="p-1.5 rounded hover:bg-white opacity-0 group-hover:opacity-100" style={{color:"var(--neg)"}}>{I.trash}</button>
+          </div>
+        </div>
+      ))}
+
+      {guides.length===0 && (
+        <div className="py-16 text-center">
+          <div className="text-[13px]" style={{color:"var(--text-3)"}}>No guides yet. Add one to get started.</div>
+          <button className="btn btn-accent mt-4">{I.plus}Add guide</button>
+        </div>
+      )}
+
+      <div className="px-5 py-3 border-t hairline flex items-center justify-between" style={{background:"#FAFAFA"}}>
+        <div className="text-[12.5px]" style={{color:"var(--text-3)"}}>{guides.length} guide{guides.length!==1?"s":""} · users complete them in order</div>
+        <button className="btn btn-primary">Save order</button>
+      </div>
+    </div>
+  );
+};
+
+/* ── EMBED TAB ── */
+const CodeBlock = ({label,code})=>{
+  const [copied,setCopied]=useState(false);
+  return (
+    <div className="rounded-lg border hairline overflow-hidden" style={{background:"#18181B"}}>
+      <div className="flex items-center justify-between px-3 py-2 border-b" style={{borderColor:"#2A2A2E"}}>
+        <div className="text-[11px] mono" style={{color:"#A1A1AA"}}>{label}</div>
+        <button onClick={()=>{setCopied(true);setTimeout(()=>setCopied(false),1600);}} className="flex items-center gap-1.5 px-2 py-1 rounded text-[11.5px] font-medium" style={{color:copied?"#86EFAC":"#E4E4E7"}}>
+          {copied?I.check:I.copy}<span>{copied?"Copied":"Copy"}</span>
+        </button>
+      </div>
+      <pre className="p-3 mock-code whitespace-pre-wrap" style={{color:"#E4E4E7",fontSize:12}}>{code}</pre>
+    </div>
+  );
+};
+
+const EmbedTab = ()=>{
+  const [widgetStyle,setWidgetStyle] = useState("floating");
+  const [position,setPosition] = useState("bottom-right");
+  const [embedEnabled,setEmbedEnabled] = useState(true);
+  return (
+    <div className="flex flex-col gap-5">
+      {/* pixel */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-[15px] font-semibold">Pixel installation</h3>
+              <span className="chip" style={{background:"oklch(0.96 0.05 150)",color:"var(--pos)"}}><span className="dot rec" style={{background:"var(--pos)"}}/>Detected on app.acme.com</span>
+            </div>
+            <div className="text-[12.5px] mt-1" style={{color:"var(--text-2)"}}>Already installed? Checklists use the same pixel as your guides — no extra setup needed.</div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Checklist active</div>
+            <div className={"switch " + (embedEnabled?"on":"")} onClick={()=>setEmbedEnabled(!embedEnabled)}/>
+          </div>
+        </div>
+        <CodeBlock label="Paste once into <head>" code={'<!-- Reveal · workspace: figmark -->\n<' + 'script async src="https://cdn.reveal.so/p.js"\n  data-workspace="figmark"\n  data-key="wk_8f4e_a1c0_live">\n</' + 'script>'}/>
+      </div>
+
+      {/* checklist widget */}
+      <div className="card p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-[15px] font-semibold">Checklist widget</h3>
+            <div className="text-[12.5px] mt-1 max-w-[520px]" style={{color:"var(--text-2)"}}>A floating to-do panel your users see on your product. Shows their progress across all guides in the checklist. Appears automatically once the pixel is installed and the user matches your audience.</div>
+          </div>
+          <span className="chip" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.widget}Auto-injected</span>
+        </div>
+
+        <div className="grid grid-cols-[320px_1fr] gap-6">
+          <div className="flex flex-col gap-3">
+            <div>
+              <div className="text-[11px] mono uppercase tracking-wider mb-1.5" style={{color:"var(--text-3)"}}>Widget style</div>
+              <div className="flex gap-1 p-0.5 rounded-lg border hairline bg-white text-[12.5px]">
+                {[{v:"floating",l:"Floating panel"},{v:"inline",l:"Inline embed"}].map(o=>(
+                  <button key={o.v} onClick={()=>setWidgetStyle(o.v)} className={"flex-1 px-3 py-1.5 rounded-md " + (widgetStyle===o.v?"bg-zinc-900 text-white":"text-zinc-600 hover:bg-zinc-100")}>{o.l}</button>
+                ))}
+              </div>
+            </div>
+            {widgetStyle==="floating" && (
+              <div>
+                <div className="text-[11px] mono uppercase tracking-wider mb-1.5" style={{color:"var(--text-3)"}}>Position</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {["top-left","top-right","bottom-left","bottom-right"].map(p=>(
+                    <button key={p} onClick={()=>setPosition(p)} className={"px-3 py-2 rounded-md border text-[12px] capitalize " + (position===p?"border-zinc-900 bg-zinc-50 font-medium":"border-zinc-200 hover:bg-zinc-50")}>{p.replace("-"," ")}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* widget preview */}
+          <div className="rounded-xl border hairline overflow-hidden relative" style={{background:"#F0F0F0",minHeight:260,backgroundImage:"radial-gradient(#D4D4D8 1px,transparent 1px)",backgroundSize:"16px 16px"}}>
+            <div className="absolute" style={{...(position.includes("bottom")?{bottom:16}:{top:16}),...(position.includes("right")?{right:16}:{left:16})}}>
+              <div className="card w-[220px] overflow-hidden" style={{boxShadow:"0 8px 24px rgba(0,0,0,.14)"}}>
+                <div className="px-4 py-3 border-b hairline flex items-center justify-between" style={{background:"var(--text)"}}>
+                  <div>
+                    <div className="text-[11px] font-semibold text-white">Getting started</div>
+                    <div className="text-[10px] mt-0.5" style={{color:"rgba(255,255,255,.6)"}}>2 of 4 complete</div>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-[10px] font-semibold">50%</div>
+                </div>
+                <div className="px-4 py-2">
+                  {INITIAL_GUIDES.map((g,i)=>(
+                    <div key={g.id} className={"flex items-center gap-2.5 py-2 " + (i<INITIAL_GUIDES.length-1?"border-b hairline":"")}>
+                      <div className={"w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 " + (i<2?"":"border hairline")} style={i<2?{background:"var(--text)"}:{background:"#fff"}}>
+                        {i<2 && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="m5 12 5 5L20 7"/></svg>}
+                      </div>
+                      <div className={"text-[11px] flex-1 truncate " + (i<2?"line-through":"font-medium")} style={{color:i<2?"var(--text-3)":"var(--text)"}}>{g.title}</div>
+                      {i===2 && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>Next</span>}
+                    </div>
+                  ))}
+                </div>
+                <div className="px-4 py-2.5 border-t hairline">
+                  <div className="w-full h-1 rounded-full bg-zinc-100 overflow-hidden">
+                    <div className="h-full rounded-full" style={{width:"50%",background:"var(--text)"}}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <CodeBlock label="Auto-injected · no action needed if pixel is installed" code={`<!-- Auto-injected by Reveal pixel when checklist is active -->
+<!-- data-checklist-id triggers the widget for this checklist -->
+<div data-reveal-checklist="cl_9g5f_b2d1_onboarding"
+     data-position="${position}">
+</div>`}/>
+        </div>
+      </div>
+
+      {/* dynamic link */}
+      <div className="card p-5">
+        <h3 className="text-[15px] font-semibold">Dynamic link</h3>
+        <div className="text-[12.5px] mt-1 max-w-[540px]" style={{color:"var(--text-2)"}}>Share this URL to trigger the checklist widget for any user who visits it — useful for email campaigns or in-app prompts.</div>
+        <div className="mt-3 flex items-center gap-2 p-2 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+          <span className="pl-1" style={{color:"var(--text-3)"}}>{I.link}</span>
+          <code className="flex-1 mock-code truncate" style={{color:"var(--text)"}}>https://app.acme.com/?reveal-cl=cl_9g5f_b2d1_onboarding</code>
+          <button className="btn">{I.copy}Copy</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── BEHAVIOR TAB ── */
+const Field = ({label,hint,children,last})=>(
+  <div className={`grid grid-cols-[220px_1fr] gap-8 py-5 ${last?"":"border-b hairline"}`}>
+    <div><div className="text-[13.5px] font-medium">{label}</div>{hint&&<div className="text-[12px] mt-0.5" style={{color:"var(--text-3)"}}>{hint}</div>}</div>
+    <div className="flex flex-col gap-2">{children}</div>
+  </div>
+);
+const RadioGroup = ({value,onChange,options})=>(
+  <div className="flex flex-col gap-2">
+    {options.map(o=>(
+      <label key={o.v} onClick={()=>onChange(o.v)} className="flex items-start gap-2.5 p-2.5 rounded-lg border hairline cursor-pointer" style={{borderColor:value===o.v?"var(--text)":"var(--border)",background:value===o.v?"#FAFAFA":"#fff"}}>
+        <span className={"radio mt-0.5 " + (value===o.v?"on":"")}/>
+        <div><div className="text-[13px] font-medium">{o.l}</div>{o.d&&<div className="text-[12px] mt-0.5" style={{color:"var(--text-3)"}}>{o.d}</div>}</div>
+      </label>
+    ))}
+  </div>
+);
+
+const BehaviorTab = ()=>{
+  const [trigger,setTrigger]=useState("auto");
+  const [audience,setAudience]=useState("new");
+  const [order,setOrder]=useState("sequential");
+  const [onComplete,setOnComplete]=useState("celebrate");
+  const [frequency,setFrequency]=useState("once");
+  const [showFeedback,setShowFeedback]=useState(true);
+  const [delay,setDelay]=useState(5);
+  return (
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-2">
+        <div><h3 className="text-[15px] font-semibold">Behavior</h3><div className="text-[12.5px]" style={{color:"var(--text-2)"}}>How and when this checklist appears for your users.</div></div>
+        <button className="btn btn-primary">Save changes</button>
+      </div>
+      <Field label="Trigger" hint="When does the checklist widget appear?">
+        <RadioGroup value={trigger} onChange={setTrigger} options={[
+          {v:"auto",l:"Auto · on first page load",d:"Widget appears as soon as a matching user lands on your site"},
+          {v:"delay",l:"After a delay",d:"Wait before showing the widget"},
+          {v:"manual",l:"Manual · via dynamic link only",d:"Users opt in by clicking a link or button"},
+        ]}/>
+        {trigger==="delay"&&<div className="mt-2 p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+          <div className="flex items-center gap-3">
+            <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Wait</div>
+            <input type="range" min="0" max="60" value={delay} onChange={e=>setDelay(+e.target.value)} className="flex-1" style={{accentColor:"var(--text)"}}/>
+            <div className="text-[13px] font-semibold mono w-16 text-right">{delay}s</div>
+          </div>
+        </div>}
+      </Field>
+      <Field label="Audience" hint="Who sees this checklist?">
+        <RadioGroup value={audience} onChange={setAudience} options={[
+          {v:"new",l:"New users",d:"First session on your pixel domain"},
+          {v:"returning",l:"Returning users",d:"Haven't yet completed this checklist"},
+          {v:"all",l:"All users"},
+          {v:"segment",l:"Custom segment…",d:"Filter by identity properties from your pixel"},
+        ]}/>
+      </Field>
+      <Field label="Guide order" hint="Can users complete guides out of order?">
+        <RadioGroup value={order} onChange={setOrder} options={[
+          {v:"sequential",l:"Sequential · must follow order",d:"Guide 2 unlocks only after guide 1 is complete"},
+          {v:"free",l:"Free order · any guide first",d:"Users can jump to any guide in the list"},
+        ]}/>
+      </Field>
+      <Field label="On full completion" hint="What happens when a user finishes all guides?">
+        <RadioGroup value={onComplete} onChange={setOnComplete} options={[
+          {v:"celebrate",l:"Show a celebration screen",d:"A brief confetti moment — keeps the widget open"},
+          {v:"dismiss",l:"Quietly dismiss the widget"},
+          {v:"redirect",l:"Redirect to a URL",d:"Send users to a next-steps page of your choice"},
+        ]}/>
+      </Field>
+      <Field label="Frequency cap" hint="How often can a user re-trigger this checklist?">
+        <div className="flex gap-1 p-1 rounded-lg border hairline bg-white text-[12.5px] w-fit">
+          {[{v:"once",l:"Once only"},{v:"session",l:"Per session"},{v:"unlimited",l:"Unlimited"}].map(o=>(
+            <button key={o.v} onClick={()=>setFrequency(o.v)} className={"px-3 py-1.5 rounded-md " + (frequency===o.v?"bg-zinc-900 text-white":"text-zinc-600 hover:bg-zinc-100")}>{o.l}</button>
+          ))}
+        </div>
+      </Field>
+      <Field label="Feedback after each guide" hint="Ask users to rate each guide as they complete it." last>
+        <div className="flex items-center gap-3">
+          <div className={"switch " + (showFeedback?"on":"")} onClick={()=>setShowFeedback(!showFeedback)}/>
+          <div className="text-[13px]">{showFeedback?"Rating screen shown after each guide":"Off — guides complete silently"}</div>
+        </div>
+      </Field>
+    </div>
+  );
+};
+
+/* ── Main ── */
+const App = ()=>{
+  const [active,setActive]=useState("overview");
+  const [published,setPublished]=useState(true);
+  return (
+    <div className="min-h-screen flex">
+      <Sidebar/>
+      <main className="flex-1 min-w-0 py-6 pr-6">
+        <div className="max-w-[1240px] mx-auto px-6 flex flex-col gap-5">
+          <div className="flex items-center gap-2 -mb-1">
+            <a href="Checklist.html" className="btn">{I.back}Back</a>
+            <div className="text-[12.5px]" style={{color:"var(--text-3)"}}>Saved 2m ago</div>
+          </div>
+          <Hero published={published} setPublished={setPublished}/>
+          <Tabs active={active} setActive={setActive}/>
+          {active==="overview" && <OverviewTab/>}
+          {active==="guides"   && <GuidesTab/>}
+          {active==="embed"    && <EmbedTab/>}
+          {active==="behavior" && <BehaviorTab/>}
+          <div className="pt-2 pb-8 text-[11.5px] mono flex items-center justify-between" style={{color:"var(--text-3)"}}>
+            <div>Checklist ID · cl_9g5f_b2d1_onboarding</div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5"><span className="dot" style={{background:"var(--pos)"}}/>Pixel active on app.acme.com</span>
+              <span>Last edited 2h ago</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

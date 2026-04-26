@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>Reveal — Get started with Acme</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#F4F4F5;--card:#FFFFFF;--border:#E8E8EB;--border-strong:#DCDCE0;--text:#18181B;--text-2:#52525B;--text-3:#A1A1AA;--accent:oklch(0.64 0.18 28);--accent-soft:oklch(0.96 0.04 28);--pos:oklch(0.64 0.14 150);--neg:oklch(0.62 0.17 25);--draft:oklch(0.65 0.12 75);}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-feature-settings:"cv11","ss01";}
+.mono{font-feature-settings:"tnum","ss01";}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 0 rgba(24,24,27,.02),0 1px 2px rgba(24,24,27,.04);}
+.hairline{border-color:var(--border);}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;}
+.dot{width:6px;height:6px;border-radius:999px;display:inline-block;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text);transition:all .15s;white-space:nowrap;cursor:pointer;}
+.btn:hover{background:#FAFAFA;border-color:var(--border-strong);}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text);} .btn-primary:hover{background:#000;}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);} .btn-accent:hover{filter:brightness(.96);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;font-size:13.5px;color:var(--text-2);font-weight:500;cursor:pointer;transition:all .12s;}
+.nav-item:hover{background:#F4F4F5;color:var(--text);} .nav-item.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(24,24,27,.06);border:1px solid var(--border);}
+.tab{padding:8px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;border-bottom:2px solid transparent;}
+.tab.active{color:var(--text);border-color:var(--text);}
+.num-tight{letter-spacing:-.02em;}
+.mock-code{font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.6;}
+.switch{width:32px;height:18px;border-radius:999px;background:#D4D4D8;position:relative;transition:.15s;flex-shrink:0;}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:999px;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.15);}
+.switch.on{background:var(--text);} .switch.on::after{left:16px;}
+@keyframes pulseRec{0%,100%{opacity:1;}50%{opacity:.4;}} .rec-dot{animation:pulseRec 1.4s ease-in-out infinite;}
+::-webkit-scrollbar{width:10px;height:10px;} ::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px;border:2px solid var(--bg);}
+.radio{width:16px;height:16px;border:1.5px solid #C4C4C8;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.radio.on{border-color:var(--text);} .radio.on::after{content:"";width:8px;height:8px;background:var(--text);border-radius:999px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const {useState, useMemo} = React;
+
+const Icon = ({d,size=16,sw=1.6,fill="none"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>);
+const I = {
+  home:<Icon d={<><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></>}/>,
+  guides:<Icon d={<><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14l4 2.5L8 19z" fill="currentColor" stroke="none"/></>}/>,
+  feedback:<Icon d={<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>}/>,
+  settings:<Icon d={<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.3l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1A2 2 0 1 1 19.7 7l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></>}/>,
+  ext:<Icon d={<><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/></>}/>,
+  back:<Icon d={<path d="m15 6-6 6 6 6"/>}/>,
+  search:<Icon d={<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>}/>,
+  chev:<Icon d={<path d="m6 9 6 6 6-6"/>}/>,
+  chevR:<Icon d={<path d="m9 6 6 6-6 6"/>} size={14}/>,
+  dots:<Icon d={<><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></>}/>,
+  play:<Icon d={<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>}/>,
+  record:<Icon d={<><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/></>}/>,
+  copy:<Icon d={<><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></>} size={14}/>,
+  link:<Icon d={<><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></>} size={14}/>,
+  edit:<Icon d={<><path d="M4 20h4l10-10-4-4L4 16z"/><path d="m14 6 4 4"/></>} size={14}/>,
+  eye:<Icon d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></>} size={14}/>,
+  clock:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>} size={14}/>,
+  flag:<Icon d={<><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/></>} size={14}/>,
+  warn:<Icon d={<><path d="M12 3 2 20h20z"/><path d="M12 10v5"/><circle cx="12" cy="17.5" r=".5" fill="currentColor"/></>} size={12}/>,
+  check:<Icon d={<path d="m5 12 5 5L20 7"/>} size={14} sw={2}/>,
+  extOpen:<Icon d={<><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></>} size={14}/>,
+  target:<Icon d={<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></>} size={14}/>,
+  globe:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18-3-3-3-15 0-18z"/></>} size={14}/>,
+  sparkle:<Icon d={<><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/></>} size={14}/>,
+  user:<Icon d={<><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></>} size={14}/>,
+};
+
+const Bubble = ({seed=0,size=32,initials,live})=>{
+  const palettes=[["#F4C89A","#E5876B"],["#B8D4E3","#6B8FA6"],["#D4C5E8","#8B72B8"],["#9AD4B8","#5A9E7C"],["#F0B8C4","#C96B84"],["#E8D79C","#B89A4E"],["#C4D4E8","#7A8FA6"],["#D8C4A8","#9E7E5A"]];
+  const [a,b]=palettes[seed%palettes.length]; const id=`bb${seed}-${size}`;
+  return(<div className="relative inline-block" style={{width:size,height:size}}>
+    <svg width={size} height={size} viewBox="0 0 40 40" className="rounded-full block">
+      <defs><radialGradient id={id} cx=".4" cy=".35" r=".8"><stop offset="0" stopColor={a}/><stop offset="1" stopColor={b}/></radialGradient></defs>
+      <circle cx="20" cy="20" r="20" fill={`url(#${id})`}/>
+      <circle cx="20" cy="16" r="5.2" fill="rgba(255,255,255,.45)"/>
+      <path d="M9 34c2-5 6-7.5 11-7.5S29 29 31 34" fill="rgba(255,255,255,.45)"/>
+      {initials && <text x="20" y="23" textAnchor="middle" fontFamily="Inter" fontWeight="600" fontSize="11" fill="rgba(24,24,27,.55)">{initials}</text>}
+    </svg>
+    {live && <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full" style={{background:"var(--accent)",boxShadow:"0 0 0 2px #fff"}}/>}
+  </div>);
+};
+
+const Face = ({kind="happy",size=18})=>{
+  const colors={sad:"#E4B341",neutral:"#C4C4C8",happy:"#74C69D",love:"#E5766C"}; const c=colors[kind];
+  return(<svg width={size} height={size} viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill={c} fillOpacity=".18" stroke={c} strokeWidth="1.5"/>
+    {kind==="sad"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M8.5 16c1-1.2 2.2-1.8 3.5-1.8s2.5.6 3.5 1.8" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+    {kind==="neutral"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M9 15h6" stroke={c} strokeWidth="1.5" strokeLinecap="round"/></>}
+    {kind==="happy"&&<><circle cx="9" cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M8.5 14c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+    {kind==="love"&&<><path d="M7.5 9.5c0-1 .8-1.8 1.8-1.8.7 0 1.2.4 1.5.9.3-.5.8-.9 1.5-.9 1 0 1.8.8 1.8 1.8 0 1.6-2.3 3-3.3 3.5-1-.5-3.3-1.9-3.3-3.5z" fill={c}/><path d="M8 14c1 1 2.5 1.6 4 1.6s3-.6 4-1.6" stroke={c} strokeWidth="1.5" fill="none" strokeLinecap="round"/></>}
+  </svg>);
+};
+
+/* ---------- SIDEBAR ---------- */
+const Sidebar = ()=>(
+  <aside className="w-[244px] shrink-0 px-3 py-3 flex flex-col" style={{height:"100vh",position:"sticky",top:0}}>
+    <button className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white text-left w-full">
+      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white" style={{background:"var(--text)"}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] font-semibold truncate">Figmark Studio</div>
+        <div className="text-[11px] mono" style={{color:"var(--text-3)"}}>figmark · Pro</div>
+      </div>
+      <span style={{color:"var(--text-3)"}}>{I.chev}</span>
+    </button>
+    <div className="mt-3 relative">
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{color:"var(--text-3)"}}>{I.search}</span>
+      <input placeholder="Search guides…" className="w-full bg-white border hairline rounded-lg pl-8 pr-10 py-2 text-[13px] outline-none focus:border-zinc-400"/>
+      <span className="absolute right-2 top-1/2 -translate-y-1/2 mono text-[10.5px] px-1.5 py-0.5 rounded border hairline" style={{color:"var(--text-3)",background:"#FAFAFA"}}>⌘K</span>
+    </div>
+    <nav className="mt-3 flex flex-col gap-0.5">
+      <a href="Home.html" className="nav-item">{I.home}<span>Home</span></a>
+      <a href="Guides.html" className="nav-item active">{I.guides}<span>Guides</span><span className="ml-auto mono text-[10.5px]" style={{color:"var(--text-3)"}}>12</span></a>
+      <a href="Checklist.html" className="nav-item">{I.feedback}<span>Checklists</span></a>
+      <a href="Settings.html" className="nav-item">{I.settings}<span>Settings</span></a>
+    </nav>
+    <div className="mt-4 px-2 text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Pinned</div>
+    <nav className="mt-1 flex flex-col gap-0.5">
+      <div className="nav-item" style={{background:"#fff",border:"1px solid var(--border)"}}><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Get started with Acme</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Set up your workspace</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--draft)"}}/><span>Billing & plan</span></div>
+    </nav>
+    <div className="mt-auto flex flex-col gap-2">
+      <div className="card p-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.ext}</div>
+          <div className="flex-1">
+            <div className="text-[12.5px] font-semibold">Reveal for Chrome</div>
+            <div className="text-[11px]" style={{color:"var(--text-2)"}}>Connected · v2.4.1</div>
+          </div>
+        </div>
+        <button className="btn w-full mt-2.5 justify-center text-[12.5px]">Open editor</button>
+      </div>
+      <div className="flex items-center gap-2 px-1.5 py-1.5">
+        <Bubble seed={7} size={28} initials="AK"/>
+        <div className="flex-1 min-w-0">
+          <div className="text-[12.5px] font-medium truncate">Alex Kowalski</div>
+          <div className="text-[11px] mono truncate" style={{color:"var(--text-3)"}}>alex@figmark.co</div>
+        </div>
+        <button className="p-1 rounded hover:bg-zinc-100" style={{color:"var(--text-3)"}}>{I.dots}</button>
+      </div>
+    </div>
+  </aside>
+);
+
+/* ---------- HERO ---------- */
+const Hero = ({published,setPublished})=>(
+  <div className="card p-5 flex gap-5">
+    <div className="relative rounded-lg overflow-hidden shrink-0" style={{width:280,height:168,background:"linear-gradient(135deg,#FDF7EC 0%,#F3E1BF 100%)"}}>
+      <div className="absolute inset-0 p-3">
+        <div className="bg-white/75 rounded h-3 w-1/3 mb-2"/>
+        <div className="flex gap-2">
+          <div className="bg-white/60 rounded h-12 w-12"/>
+          <div className="flex-1 space-y-1"><div className="bg-white/60 rounded h-1.5 w-4/5"/><div className="bg-white/50 rounded h-1.5 w-3/5"/><div className="bg-white/50 rounded h-1.5 w-2/3"/></div>
+        </div>
+      </div>
+      <div className="absolute top-[44%] left-[22%] w-8 h-8 rounded-full" style={{border:"2px dashed rgba(24,24,27,.35)",background:"rgba(255,255,255,.3)"}}/>
+      <div className="absolute bottom-3 right-3 rounded-full p-0.5" style={{background:"rgba(255,255,255,.9)"}}>
+        <Bubble seed={0} size={48} initials="AK"/>
+      </div>
+      <button className="absolute inset-0 flex items-center justify-center group">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center transition-transform group-hover:scale-110" style={{background:"rgba(255,255,255,.9)",boxShadow:"0 6px 20px rgba(0,0,0,.2)"}}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--text)"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </button>
+    </div>
+    <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex items-center gap-2 text-[12.5px]" style={{color:"var(--text-3)"}}>
+        <a href="Guides.html" className="hover:text-zinc-900">Guides</a>
+        <span>/</span>
+        <span style={{color:"var(--text)"}}>Get started with Acme</span>
+      </div>
+      <div className="flex items-center gap-3 mt-1">
+        <h1 className="text-[24px] font-semibold num-tight">Get started with Acme</h1>
+        <span className="chip" style={{background: published?"oklch(0.96 0.05 150)":"oklch(0.97 0.03 75)",color: published?"var(--pos)":"var(--draft)"}}>
+          <span className="dot" style={{background: published?"var(--pos)":"var(--draft)"}}/>{published?"Published":"Draft"}
+        </span>
+      </div>
+      <div className="mt-1.5 flex items-center gap-2 text-[12.5px]" style={{color:"var(--text-2)"}}>
+        <Bubble seed={0} size={16} initials="AK"/>
+        <span>Alex Kowalski</span>
+        <span>·</span>
+        <span>8 steps</span>
+        <span>·</span>
+        <span>Created Mar 12, 2026 · Edited 2h ago</span>
+      </div>
+      <div className="mt-auto flex items-end gap-5">
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Impressions</div><div className="text-[18px] font-semibold num-tight mt-0.5 mono">12,480</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Starts</div><div className="text-[18px] font-semibold num-tight mt-0.5 mono">4,210</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Completion</div><div className="text-[18px] font-semibold num-tight mt-0.5 mono" style={{color:"var(--pos)"}}>78%</div></div>
+        <div><div className="text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Rating</div><div className="flex items-center gap-1.5 mt-0.5"><Face kind="love" size={20}/><div className="text-[18px] font-semibold num-tight mono">4.7</div></div></div>
+        <div className="ml-auto flex items-center gap-2">
+          <button className="btn" onClick={()=>setPublished(!published)}>{published?"Unpublish":"Publish"}</button>
+          <button className="btn"><span>{I.copy}</span>Duplicate</button>
+          <button className="btn btn-accent"><span>{I.extOpen}</span>Open in Editor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ---------- SECTION TABS ---------- */
+const Tabs = ({active, setActive})=>(
+  <div className="flex items-center border-b hairline sticky top-0 z-20 -mx-6 px-6" style={{background:"var(--bg)"}}>
+    {[
+      {id:"overview",l:"Overview"},
+      {id:"embed",l:"Embed"},
+      {id:"behavior",l:"Behavior"},
+    ].map(t=>(
+      <div key={t.id} onClick={()=>setActive(t.id)} className={"tab " + (active===t.id?"active":"")}>
+        {t.l}{t.sub && <span className="mono text-[11px]" style={{color:"var(--text-3)"}}>{t.sub}</span>}
+      </div>
+    ))}
+  </div>
+);
+
+/* ---------- ANALYTICS ---------- */
+const Kpi = ({label,value,sub,delta,deltaKind,icon})=>(
+  <div className="card p-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5 text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>{icon}{label}</div>
+    </div>
+    <div className="flex items-end gap-2 mt-2">
+      <div className="text-[24px] font-semibold num-tight leading-none">{value}</div>
+      {sub && <div className="text-[12px] pb-0.5" style={{color:"var(--text-3)"}}>{sub}</div>}
+    </div>
+    {delta && <div className="mt-2 chip" style={{background: deltaKind==="pos"?"oklch(0.96 0.05 150)":"oklch(0.96 0.04 25)", color: deltaKind==="pos"?"var(--pos)":"var(--neg)"}}>
+      <span className="mono">{delta}</span>
+    </div>}
+  </div>
+);
+
+const StepFunnel = ()=>{
+  const steps=[
+    {n:1,l:"Welcome · founder intro",v:100,drop:0},
+    {n:2,l:"Create your workspace",v:92,drop:8},
+    {n:3,l:"Invite your team",v:87,drop:5},
+    {n:4,l:"Connect first integration",v:84,drop:3},
+    {n:5,l:"Set notification preferences",v:81,drop:3},
+    {n:6,l:"Customize your dashboard",v:80,drop:1},
+    {n:7,l:"Try the keyboard shortcuts",v:79,drop:1},
+    {n:8,l:"You're done — thanks!",v:78,drop:1},
+  ];
+  return (
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-[15px] font-semibold">Step funnel</h3>
+          <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>% of users reaching each step · Last 30 days</div>
+        </div>
+        <button className="btn">Last 30 days {I.chev}</button>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {steps.map((s,i)=>(
+          <div key={s.n} className="grid grid-cols-[80px_1fr_90px_70px] items-center gap-3 group">
+            <div className="text-[12px] mono" style={{color:"var(--text-3)"}}>Step {s.n}</div>
+            <div className="relative h-7 rounded-md bg-zinc-100 overflow-hidden">
+              <div className="h-full rounded-md" style={{width:`${s.v}%`,background:"var(--text)"}}/>
+              <div className="absolute left-3 top-0 bottom-0 flex items-center text-[12px] font-medium text-white">{s.l}</div>
+            </div>
+            <div className="text-[13px] font-semibold mono">{s.v}%</div>
+            <div className="text-[12px] mono text-right" style={{color: s.drop>=5? "var(--neg)" : "var(--text-3)"}}>
+              {s.drop>0 ? `−${s.drop}%` : "—"}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const RatingBreakdown = ()=>{
+  const data=[{k:"love",pct:48,n:742},{k:"happy",pct:34,n:525},{k:"neutral",pct:12,n:186},{k:"sad",pct:6,n:92}];
+  return (
+    <div className="card p-5">
+      <h3 className="text-[15px] font-semibold">Rating breakdown</h3>
+      <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>1,545 ratings collected</div>
+      <div className="mt-4 flex rounded-full overflow-hidden h-2.5">
+        {data.map(d=>{
+          const c={love:"#E5766C",happy:"#74C69D",neutral:"#C4C4C8",sad:"#E4B341"}[d.k];
+          return <div key={d.k} style={{width:`${d.pct}%`,background:c}}/>;
+        })}
+      </div>
+      <div className="mt-4 flex flex-col gap-2">
+        {data.map(d=>(
+          <div key={d.k} className="flex items-center gap-3">
+            <Face kind={d.k} size={20}/>
+            <div className="text-[13px] capitalize flex-1">{d.k}</div>
+            <div className="text-[12px] mono" style={{color:"var(--text-3)"}}>{d.n}</div>
+            <div className="text-[13px] font-medium mono w-10 text-right">{d.pct}%</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const LatestFeedback = ()=>{
+  const fb=[
+    {user:"sarah.l@figmark.co",rating:"love",text:"Loved seeing the founder walk me through. Felt personal.",when:"12m"},
+    {user:"tom@north.io",rating:"happy",text:"Clear and quick. The video bubble didn't get in my way.",when:"1h"},
+    {user:"dev+82@lumen.app",rating:"neutral",text:"Step 2 felt a bit long.",when:"3h"},
+  ];
+  return (
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[15px] font-semibold">Latest feedback</h3>
+        <button className="text-[12.5px]" style={{color:"var(--text-2)"}}>View all {I.chevR}</button>
+      </div>
+      <div className="flex flex-col gap-2.5">
+        {fb.map((f,i)=>(
+          <div key={i} className="p-3 rounded-lg border hairline flex items-start gap-3" style={{background:"#FAFAFA"}}>
+            <Face kind={f.rating} size={22}/>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px]">“{f.text}”</div>
+              <div className="mt-1 flex items-center gap-2 text-[11.5px] mono" style={{color:"var(--text-3)"}}>
+                <span className="truncate">{f.user}</span><span className="ml-auto">{f.when}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ---------- STEPS LIST ---------- */
+const StepsList = ()=>{
+  const steps=[
+    {n:1,title:"Welcome to Acme",element:"body",duration:"0:24",completion:100,hasVideo:true},
+    {n:2,title:"Create your first workspace",element:"button[data-cta='create-workspace']",duration:"0:18",completion:92,hasVideo:true},
+    {n:3,title:"Invite your team",element:"nav a[href='/settings/team']",duration:"0:12",completion:87,hasVideo:true},
+    {n:4,title:"Connect an integration",element:".integrations-grid",duration:"0:22",completion:84,hasVideo:true},
+    {n:5,title:"Set notification preferences",element:"[data-settings='notifications']",duration:"0:15",completion:81,hasVideo:false},
+    {n:6,title:"Customize your dashboard",element:".dashboard-root",duration:"0:19",completion:80,hasVideo:true},
+    {n:7,title:"Try keyboard shortcuts",element:"body",duration:"0:11",completion:79,hasVideo:true},
+    {n:8,title:"You're done!",element:".page-header",duration:"0:08",completion:78,hasVideo:true},
+  ];
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between px-5 py-4 border-b hairline">
+        <div>
+          <h3 className="text-[15px] font-semibold">Steps</h3>
+          <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Edits happen in the Chrome extension — click Open in Editor to jump to a step.</div>
+        </div>
+        <button className="btn btn-accent"><span>{I.extOpen}</span>Open in Editor</button>
+      </div>
+      <div>
+        {steps.map(s=>(
+          <div key={s.n} className="grid grid-cols-[48px_72px_1fr_230px_90px_80px_160px] gap-4 px-5 py-3 items-center border-b hairline last:border-0 hover:bg-[#FAFAFA] group">
+            <div className="text-[13px] font-semibold mono" style={{color:"var(--text-3)"}}>{String(s.n).padStart(2,"0")}</div>
+            <div className="w-[72px] h-10 rounded-md overflow-hidden relative" style={{background:`linear-gradient(135deg,${["#FDF7EC","#EEF3FB","#F3ECFB","#ECF7F1","#FBECEF","#FAF4E0","#F0F4F9","#F6F1EB"][s.n%8]} 0%,${["#F3E1BF","#D8E4F4","#DDCEF0","#CDE5D7","#F2CDD5","#EADEA9","#D6DEE8","#E2D4C1"][s.n%8]} 100%)`}}>
+              {s.hasVideo && <div className="absolute bottom-0.5 right-0.5"><Bubble seed={0} size={14} initials="AK"/></div>}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" style={{background:"rgba(0,0,0,.3)"}}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13.5px] font-medium truncate">{s.title}</div>
+              <div className="mt-0.5 flex items-center gap-1.5 text-[11.5px]" style={{color:"var(--text-3)"}}>
+                {s.hasVideo ? <><span className="dot" style={{background:"var(--accent)"}}/><span>Video bubble</span></> : <><span className="dot" style={{background:"var(--text-3)"}}/><span>No video (silent step)</span></>}
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11.5px] truncate" style={{color:"var(--text-2)"}}>
+              <span style={{color:"var(--text-3)"}}>{I.target}</span>
+              <code className="mock-code truncate" style={{color:"var(--text-2)"}}>{s.element}</code>
+            </div>
+            <div className="text-[12.5px] mono" style={{color:"var(--text-2)"}}>{s.duration}</div>
+            <div>
+              <div className="h-1.5 rounded-full bg-zinc-100 overflow-hidden"><div className="h-full rounded-full" style={{width:`${s.completion}%`,background: s.completion>=85?"var(--pos)":s.completion>=70?"var(--draft)":"var(--neg)"}}/></div>
+              <div className="mt-1 text-[11px] mono" style={{color:"var(--text-3)"}}>{s.completion}% reach</div>
+            </div>
+            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition">
+              <button className="btn text-[12px] py-1.5">{I.extOpen}<span>Open in Editor</span></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ---------- EMBED ---------- */
+const DetectionPill = ({status})=>{
+  const map={
+    detected:{bg:"oklch(0.96 0.05 150)",fg:"var(--pos)",dot:"var(--pos)",label:"Pixel detected on acme.com · 4 pages",animate:true},
+    missing:{bg:"oklch(0.97 0.03 25)",fg:"var(--neg)",dot:"var(--neg)",label:"Pixel not detected on your site"},
+    idle:{bg:"#F4F4F5",fg:"var(--text-2)",dot:"var(--text-3)",label:"Waiting for first pageview"},
+  }[status];
+  return (
+    <span className="chip" style={{background:map.bg,color:map.fg,fontSize:12}}>
+      <span className={"dot " + (map.animate?"rec-dot":"")} style={{background:map.dot}}/>
+      {map.label}
+    </span>
+  );
+};
+
+const CodeBlock = ({code,label})=>{
+  const [copied,setCopied]=useState(false);
+  return (
+    <div className="rounded-lg border hairline overflow-hidden" style={{background:"#18181B"}}>
+      <div className="flex items-center justify-between px-3 py-2 border-b" style={{borderColor:"#2A2A2E"}}>
+        <div className="text-[11px] mono" style={{color:"#A1A1AA"}}>{label}</div>
+        <button onClick={()=>{setCopied(true);setTimeout(()=>setCopied(false),1600);}} className="flex items-center gap-1.5 px-2 py-1 rounded text-[11.5px] font-medium" style={{color:copied?"#86EFAC":"#E4E4E7",background:"transparent"}}>
+          {copied ? I.check : I.copy}
+          <span>{copied?"Copied":"Copy"}</span>
+        </button>
+      </div>
+      <pre className="p-3 mock-code whitespace-pre" style={{color:"#E4E4E7",fontSize:12}}>{code}</pre>
+    </div>
+  );
+};
+
+const PixelSection = ({embedEnabled,setEmbedEnabled,detection,setDetection})=>(
+  <div className="card p-5 flex flex-col gap-4">
+    <div className="flex items-start justify-between">
+      <div>
+        <div className="flex items-center gap-2">
+          <h3 className="text-[15px] font-semibold">Pixel installation</h3>
+          <DetectionPill status={detection}/>
+        </div>
+        <div className="text-[12.5px] mt-1 max-w-[540px]" style={{color:"var(--text-2)"}}>
+          Add this to your site's <code className="mock-code">&lt;head&gt;</code> once — it enables every published guide on this workspace. Our Chrome extension reports back when it sees the pixel in the wild.
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 shrink-0">
+        <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Enable embedding site-wide</div>
+        <div onClick={()=>setEmbedEnabled(!embedEnabled)} className={"switch " + (embedEnabled?"on":"")} role="switch"/>
+      </div>
+    </div>
+    <CodeBlock label="Paste into &lt;head&gt;" code={'<!-- Reveal · workspace: figmark -->\n<' + 'script async src="https://cdn.reveal.so/p.js"\n  data-workspace="figmark"\n  data-key="wk_8f4e_a1c0_live">\n</' + 'script>'}/>
+    <div className="grid grid-cols-3 gap-3">
+      <div className="p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+        <div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Domains detected</div>
+        <div className="text-[16px] font-semibold mt-1 mono">app.acme.com</div>
+        <div className="text-[11.5px] mono mt-0.5" style={{color:"var(--text-3)"}}>last ping 18s ago</div>
+      </div>
+      <div className="p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+        <div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Pageviews today</div>
+        <div className="text-[16px] font-semibold mt-1 mono">2,140</div>
+        <div className="text-[11.5px] mono mt-0.5" style={{color:"var(--pos)"}}>↑ 12%</div>
+      </div>
+      <div className="p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+        <div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Guide active right now</div>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="w-2 h-2 rounded-full rec-dot" style={{background:"var(--accent)"}}/>
+          <div className="text-[16px] font-semibold mono">17 live</div>
+        </div>
+        <div className="text-[11.5px] mono mt-0.5" style={{color:"var(--text-3)"}}>users mid-guide</div>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      <button className="btn" onClick={()=>setDetection(detection==="detected"?"missing":"detected")}>Toggle detection (demo)</button>
+      <button className="btn">{I.globe}<span>Test on acme.com</span></button>
+      <button className="btn">{I.copy}<span>Copy pixel key</span></button>
+    </div>
+  </div>
+);
+
+const TriggerButton = ({variant})=>{
+  const styles={
+    solid:{bg:"var(--text)",fg:"#fff",border:"var(--text)"},
+    accent:{bg:"var(--accent)",fg:"#fff",border:"var(--accent)"},
+    outline:{bg:"#fff",fg:"var(--text)",border:"var(--border-strong)"},
+  }[variant];
+  return (
+    <button className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium" style={{background:styles.bg,color:styles.fg,border:"1px solid "+styles.border}}>
+      <span className="w-4 h-4 rounded-full flex items-center justify-center" style={{background:"rgba(255,255,255,.9)"}}>
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="var(--accent)"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+      <span>Watch intro</span>
+    </button>
+  );
+};
+
+const RevealButtonSection = ()=>{
+  const [variant,setVariant]=useState("solid");
+  const [label,setLabel]=useState("Watch intro");
+  return (
+    <div className="card p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <h3 className="text-[15px] font-semibold">Reveal button</h3>
+          <div className="text-[12.5px] mt-1 max-w-[520px]" style={{color:"var(--text-2)"}}>A styled, drop-in button your users can click to start this guide. Paste it anywhere on your site.</div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-[280px_1fr] gap-5">
+        <div>
+          <div className="text-[11px] mono uppercase tracking-wider mb-2" style={{color:"var(--text-3)"}}>Preview</div>
+          <div className="rounded-lg border hairline p-5 flex items-center justify-center" style={{background:"#FAFAFA",minHeight:120,backgroundImage:"radial-gradient(#E4E4E7 1px,transparent 1px)",backgroundSize:"12px 12px"}}>
+            <div style={{transform:"scale(1.1)"}}>
+              <TriggerButton variant={variant}/>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-col gap-2">
+            <div>
+              <div className="text-[11px] mono uppercase tracking-wider mb-1" style={{color:"var(--text-3)"}}>Style</div>
+              <div className="flex gap-1 p-0.5 rounded-lg border hairline bg-white text-[12px]">
+                {[{v:"solid",l:"Solid"},{v:"accent",l:"Reveal red"},{v:"outline",l:"Outline"}].map(o=>(
+                  <button key={o.v} onClick={()=>setVariant(o.v)} className={"flex-1 px-2 py-1 rounded-md " + (variant===o.v?"bg-zinc-900 text-white":"text-zinc-600")}>{o.l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] mono uppercase tracking-wider mb-1" style={{color:"var(--text-3)"}}>Label</div>
+              <input value={label} onChange={e=>setLabel(e.target.value)} className="w-full bg-white border hairline rounded-lg px-3 py-2 text-[13px] outline-none focus:border-zinc-400"/>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="text-[11px] mono uppercase tracking-wider mb-2" style={{color:"var(--text-3)"}}>Embed code</div>
+          <CodeBlock label="Paste anywhere in your page body" code={`<div data-reveal-button
+  data-guide="gd_8f4e_a1c0_welcome"
+  data-style="${variant}"
+  data-label="${label}">
+</div>`}/>
+          <div className="mt-3 flex items-center gap-2">
+            <button className="btn">{I.eye}<span>Preview on acme.com</span></button>
+            <button className="btn">{I.edit}<span>Edit brand</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DynamicLinkSection = ()=>(
+  <div className="card p-5">
+    <div className="flex items-start justify-between">
+      <div>
+        <h3 className="text-[15px] font-semibold">Dynamic link</h3>
+        <div className="text-[12.5px] mt-1 max-w-[560px]" style={{color:"var(--text-2)"}}>Wire any button, menu item, or email link to this guide. When a user hits the link, the pixel detects it and the guide starts — no custom JS needed.</div>
+      </div>
+      <span className="chip" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.sparkle}Custom trigger</span>
+    </div>
+    <div className="mt-4 flex items-center gap-2 p-2 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+      <span style={{color:"var(--text-3)"}} className="pl-1">{I.link}</span>
+      <code className="flex-1 mock-code truncate" style={{color:"var(--text)"}}>https://app.acme.com/?reveal=gd_8f4e_a1c0_welcome</code>
+      <button className="btn">{I.copy}<span>Copy</span></button>
+      <button className="btn">{I.extOpen}<span>Open</span></button>
+    </div>
+    <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="p-3 rounded-lg border hairline"><div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Trigger param</div><div className="mock-code mt-1">?reveal=gd_…</div></div>
+      <div className="p-3 rounded-lg border hairline"><div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Expires</div><div className="text-[13px] mt-1">Never</div></div>
+      <div className="p-3 rounded-lg border hairline"><div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Uses</div><div className="text-[13px] mt-1 mono">Unlimited</div></div>
+    </div>
+    <div className="mt-3 text-[12px] p-3 rounded-lg" style={{background:"#FAFAFA",color:"var(--text-2)"}}>
+      <span className="font-medium" style={{color:"var(--text)"}}>Example:</span> <code className="mock-code">&lt;a href="https://app.acme.com/?reveal=gd_8f4e_a1c0_welcome"&gt;Show me around&lt;/a&gt;</code>
+    </div>
+  </div>
+);
+
+/* ---------- BEHAVIOR ---------- */
+const Field = ({label,hint,children})=>(
+  <div className="grid grid-cols-[220px_1fr] gap-6 py-4 border-b hairline last:border-0">
+    <div>
+      <div className="text-[13px] font-medium">{label}</div>
+      {hint && <div className="text-[12px] mt-0.5" style={{color:"var(--text-3)"}}>{hint}</div>}
+    </div>
+    <div>{children}</div>
+  </div>
+);
+
+const RadioGroup = ({value,onChange,options})=>(
+  <div className="flex flex-col gap-2">
+    {options.map(o=>(
+      <label key={o.v} onClick={()=>onChange(o.v)} className="flex items-start gap-2.5 p-2.5 rounded-lg border hairline cursor-pointer hover:bg-[#FAFAFA]" style={{borderColor:value===o.v?"var(--text)":"var(--border)",background:value===o.v?"#FAFAFA":"#fff"}}>
+        <span className={"radio mt-0.5 " + (value===o.v?"on":"")}/>
+        <div className="flex-1">
+          <div className="text-[13px] font-medium">{o.l}</div>
+          {o.d && <div className="text-[12px] mt-0.5" style={{color:"var(--text-3)"}}>{o.d}</div>}
+        </div>
+      </label>
+    ))}
+  </div>
+);
+
+const BehaviorPanel = ()=>{
+  const [trigger,setTrigger] = useState("auto");
+  const [delay,setDelay] = useState(3);
+  const [audience,setAudience] = useState("new");
+  const [onSkip,setOnSkip] = useState("return");
+  const [maxSkips,setMaxSkips] = useState(3);
+  const [showFeedback,setShowFeedback] = useState(true);
+  const [frequency,setFrequency] = useState("once");
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <h3 className="text-[15px] font-semibold">Behavior</h3>
+          <div className="text-[12.5px] mt-1" style={{color:"var(--text-2)"}}>How, when, and to whom this guide shows up.</div>
+        </div>
+        <button className="btn btn-primary">Save changes</button>
+      </div>
+
+      <div className="mt-3">
+        <Field label="Trigger" hint="When does the guide appear?">
+          <RadioGroup value={trigger} onChange={setTrigger} options={[
+            {v:"auto",l:"Auto · on page load",d:"Starts as soon as the pixel detects a matching user"},
+            {v:"delay",l:"After a delay",d:"Wait N seconds after page load"},
+            {v:"manual",l:"Manual only",d:"Only fires via Reveal Button or dynamic link"},
+            {v:"element",l:"On element click",d:"Bind to a CSS selector in the editor"},
+          ]}/>
+          {trigger==="delay" && (
+            <div className="mt-3 p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+              <div className="flex items-center gap-3">
+                <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Wait</div>
+                <input type="range" min="0" max="30" value={delay} onChange={e=>setDelay(+e.target.value)} className="flex-1" style={{accentColor:"var(--text)"}}/>
+                <div className="text-[13px] font-semibold mono w-16 text-right">{delay}s</div>
+              </div>
+            </div>
+          )}
+        </Field>
+
+        <Field label="Audience" hint="Who sees this guide?">
+          <RadioGroup value={audience} onChange={setAudience} options={[
+            {v:"new",l:"New users",d:"First session on the pixel domain"},
+            {v:"returning",l:"Returning users",d:"Seen before, but haven't completed this guide"},
+            {v:"all",l:"All users",d:"Anyone who hasn't seen it yet"},
+            {v:"segment",l:"Custom segment…",d:"Filter by user properties from your identify call"},
+          ]}/>
+        </Field>
+
+        <Field label="On skip" hint="When a user dismisses the guide.">
+          <RadioGroup value={onSkip} onChange={setOnSkip} options={[
+            {v:"return",l:"Show again next session",d:"Resume from where they left off"},
+            {v:"dismiss",l:"Show again from start next session"},
+            {v:"never",l:"Never show again",d:"One chance only"},
+          ]}/>
+        </Field>
+
+        <Field label="Skip threshold" hint="Stop showing after this many skips in a row.">
+          <div className="p-3 rounded-lg border hairline" style={{background:"#FAFAFA"}}>
+            <div className="flex items-center gap-3">
+              <input type="range" min="1" max="10" value={maxSkips} onChange={e=>setMaxSkips(+e.target.value)} className="flex-1" style={{accentColor:"var(--text)"}}/>
+              <div className="text-[13px] font-semibold mono w-24 text-right">{maxSkips} skip{maxSkips===1?"":"s"}</div>
+            </div>
+            <div className="text-[11.5px] mono mt-2" style={{color:"var(--text-3)"}}>After {maxSkips} skip{maxSkips===1?"":"s"}, this guide is permanently dismissed for that user.</div>
+          </div>
+        </Field>
+
+        <Field label="Frequency cap" hint="How often can the same user see this guide?">
+          <div className="flex gap-1 p-1 rounded-lg border hairline bg-white text-[12.5px] w-fit">
+            {[{v:"once",l:"Once"},{v:"daily",l:"Once per day"},{v:"weekly",l:"Once per week"},{v:"unlimited",l:"Unlimited"}].map(o=>(
+              <button key={o.v} onClick={()=>setFrequency(o.v)} className={"px-3 py-1.5 rounded-md " + (frequency===o.v?"bg-zinc-900 text-white":"text-zinc-600 hover:bg-zinc-100")}>{o.l}</button>
+            ))}
+          </div>
+        </Field>
+
+        <Field label="Feedback screen" hint="Ask for a rating and optional comment at the end.">
+          <div className="flex items-center gap-3">
+            <div onClick={()=>setShowFeedback(!showFeedback)} className={"switch " + (showFeedback?"on":"")}/>
+            <div className="text-[13px]">{showFeedback ? "Shown after final step" : "Off — guide ends silently"}</div>
+          </div>
+          {showFeedback && (
+            <div className="mt-3 p-3 rounded-lg border hairline flex items-center justify-center gap-3" style={{background:"#FAFAFA"}}>
+              <Face kind="sad" size={26}/>
+              <Face kind="neutral" size={26}/>
+              <Face kind="happy" size={26}/>
+              <Face kind="love" size={26}/>
+              <span className="ml-3 text-[12px]" style={{color:"var(--text-3)"}}>+ optional comment</span>
+            </div>
+          )}
+        </Field>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- MAIN ---------- */
+/* ---------- STEPS DATA (shared) ---------- */
+const STEPS = [
+  {n:1,title:"Welcome to Acme",element:"body",duration:"0:24",completion:100,drop:0,hasVideo:true},
+  {n:2,title:"Create your first workspace",element:"button[data-cta='create-workspace']",duration:"0:18",completion:92,drop:8,hasVideo:true},
+  {n:3,title:"Invite your team",element:"nav a[href='/settings/team']",duration:"0:12",completion:87,drop:5,hasVideo:true},
+  {n:4,title:"Connect an integration",element:".integrations-grid",duration:"0:22",completion:84,drop:3,hasVideo:true},
+  {n:5,title:"Set notification preferences",element:"[data-settings='notifications']",duration:"0:15",completion:81,drop:3,hasVideo:false},
+  {n:6,title:"Customize your dashboard",element:".dashboard-root",duration:"0:19",completion:80,drop:1,hasVideo:true},
+  {n:7,title:"Try keyboard shortcuts",element:"body",duration:"0:11",completion:79,drop:1,hasVideo:true},
+  {n:8,title:"You're done!",element:".page-header",duration:"0:08",completion:78,drop:1,hasVideo:true},
+];
+const thumbBg = (n)=>`linear-gradient(135deg,${["#FDF7EC","#EEF3FB","#F3ECFB","#ECF7F1","#FBECEF","#FAF4E0","#F0F4F9","#F6F1EB"][n%8]} 0%,${["#F3E1BF","#D8E4F4","#DDCEF0","#CDE5D7","#F2CDD5","#EADEA9","#D6DEE8","#E2D4C1"][n%8]} 100%)`;
+const completionColor = (c)=> c>=85?"var(--pos)":c>=70?"var(--draft)":"var(--neg)";
+
+/* ---------- OVERVIEW V1: CLASSIC (split) ---------- */
+const OverviewV1 = ()=>(
+  <div className="flex flex-col gap-5">
+    <div className="grid grid-cols-5 gap-4">
+      <Kpi label="Impressions" value="12,480" delta="+12.4%" deltaKind="pos" icon={I.eye}/>
+      <Kpi label="Starts"      value="4,210"  delta="+8.1%"  deltaKind="pos" icon={I.play}/>
+      <Kpi label="Completion"  value="78%"    delta="+2.1pp" deltaKind="pos" icon={I.flag}/>
+      <Kpi label="Avg. watch"  value="2:14"   sub="/ 2:48"   delta="+0:08"  deltaKind="pos" icon={I.clock}/>
+      <Kpi label="Avg. rating" value="4.7"    sub="/ 5.0"    delta="+0.2"   deltaKind="pos" icon={I.sparkle}/>
+    </div>
+    <StepFunnel/>
+    <StepsList/>
+    <div className="grid grid-cols-2 gap-4">
+      <RatingBreakdown/>
+      <LatestFeedback/>
+    </div>
+  </div>
+);
+
+/* ---------- OVERVIEW V2: FUNNEL-FIRST (steps ARE the funnel) ---------- */
+const OverviewV2 = ()=>(
+  <div className="flex flex-col gap-5">
+    <div className="grid grid-cols-5 gap-4">
+      <Kpi label="Impressions" value="12,480" delta="+12.4%" deltaKind="pos" icon={I.eye}/>
+      <Kpi label="Starts" value="4,210" delta="+8.1%" deltaKind="pos" icon={I.play}/>
+      <Kpi label="Completion" value="78%" delta="+2.1pp" deltaKind="pos" icon={I.flag}/>
+      <Kpi label="Avg. watch" value="2:14" sub="/ 2:48" delta="+0:08" deltaKind="pos" icon={I.clock}/>
+      <Kpi label="Avg. rating" value="4.7" sub="/ 5.0" delta="+0.2" deltaKind="pos" icon={I.sparkle}/>
+    </div>
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-[15px] font-semibold">Step funnel</h3>
+          <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Each step scales by how many users reached it. Hover a row to edit.</div>
+        </div>
+        <button className="btn btn-accent">{I.extOpen}<span>Open in Editor</span></button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {STEPS.map(s=>(
+          <div key={s.n} className="group relative flex items-stretch gap-2">
+            <div className="w-[52px] shrink-0 flex flex-col items-center justify-center text-[11.5px] mono" style={{color:"var(--text-3)"}}>
+              <div className="font-semibold" style={{color:"var(--text)"}}>{String(s.n).padStart(2,"0")}</div>
+              {s.drop>=5 && <div className="mt-0.5 flex items-center gap-0.5" style={{color:"var(--neg)"}}>{I.warn}<span>−{s.drop}%</span></div>}
+            </div>
+            <div className="flex-1 rounded-lg overflow-hidden relative border hairline transition-transform group-hover:translate-x-0.5" style={{width:`${s.completion}%`,minWidth:"40%"}}>
+              <div className="absolute inset-0" style={{background:thumbBg(s.n), opacity:.9}}/>
+              <div className="absolute inset-0" style={{background:"linear-gradient(90deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.72) 70%, rgba(255,255,255,.55) 100%)"}}/>
+              <div className="relative flex items-center gap-3 px-3 py-3">
+                <div className="w-11 h-11 rounded-md overflow-hidden relative shrink-0" style={{background:thumbBg(s.n)}}>
+                  {s.hasVideo && <div className="absolute bottom-0.5 right-0.5"><Bubble seed={0} size={14} initials="AK"/></div>}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13.5px] font-semibold truncate">{s.title}</div>
+                  <div className="mt-0.5 flex items-center gap-1.5 text-[11.5px] truncate" style={{color:"var(--text-2)"}}>
+                    <span style={{color:"var(--text-3)"}}>{I.target}</span>
+                    <code className="mock-code truncate">{s.element}</code>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[18px] font-semibold num-tight mono" style={{color:completionColor(s.completion)}}>{s.completion}%</div>
+                  <div className="text-[11px] mono" style={{color:"var(--text-3)"}}>{s.duration} · reach</div>
+                </div>
+                <button className="btn text-[12px] py-1.5 opacity-0 group-hover:opacity-100">{I.extOpen}<span>Edit</span></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="grid grid-cols-2 gap-4">
+      <RatingBreakdown/>
+      <LatestFeedback/>
+    </div>
+  </div>
+);
+
+/* ---------- OVERVIEW V3: TWO-COLUMN NARRATIVE ---------- */
+const OverviewV3 = ()=>(
+  <div className="grid grid-cols-[1fr_340px] gap-5 items-start">
+    <div className="card p-5">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-[15px] font-semibold">Steps · live analytics</h3>
+        <button className="btn btn-accent">{I.extOpen}<span>Open in Editor</span></button>
+      </div>
+      <div className="text-[12.5px] mb-4" style={{color:"var(--text-2)"}}>Each step in order. Metrics reflect the last 30 days.</div>
+      <div className="relative">
+        <div className="absolute left-[19px] top-2 bottom-2 w-px" style={{background:"var(--border)"}}/>
+        {STEPS.map((s,i)=>(
+          <div key={s.n} className="relative pl-10 pb-5 last:pb-0 group">
+            <div className="absolute left-[11px] top-1 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10.5px] font-semibold mono" style={{background:"#fff",border:"1.5px solid "+completionColor(s.completion),color:completionColor(s.completion)}}>{s.n}</div>
+            <div className="flex items-start gap-3">
+              <div className="w-[88px] h-12 rounded-md overflow-hidden relative shrink-0" style={{background:thumbBg(s.n)}}>
+                {s.hasVideo && <div className="absolute bottom-0.5 right-0.5"><Bubble seed={0} size={14} initials="AK"/></div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start gap-2">
+                  <div className="text-[14px] font-semibold flex-1">{s.title}</div>
+                  <div className="text-[13px] font-semibold mono" style={{color:completionColor(s.completion)}}>{s.completion}%</div>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5 text-[11.5px] truncate" style={{color:"var(--text-2)"}}>
+                  <span style={{color:"var(--text-3)"}}>{I.target}</span>
+                  <code className="mock-code truncate">{s.element}</code>
+                  <span style={{color:"var(--text-3)"}}>·</span>
+                  <span className="mono">{s.duration}</span>
+                </div>
+                <div className="mt-2 h-1 rounded-full bg-zinc-100 overflow-hidden"><div className="h-full rounded-full" style={{width:`${s.completion}%`,background:completionColor(s.completion)}}/></div>
+                {s.drop>=5 && <div className="mt-1.5 flex items-center gap-1 text-[11px]" style={{color:"var(--neg)"}}>{I.warn}<span>{s.drop}% of users drop off here</span></div>}
+              </div>
+              <button className="btn text-[12px] py-1.5 opacity-0 group-hover:opacity-100">{I.extOpen}<span>Edit</span></button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="flex flex-col gap-4" style={{position:"sticky",top:56}}>
+      <div className="card p-4">
+        <div className="text-[11px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>This week</div>
+        <div className="grid grid-cols-2 gap-3 mt-2">
+          <div><div className="text-[11px]" style={{color:"var(--text-3)"}}>Impressions</div><div className="text-[18px] font-semibold mono num-tight">12,480</div></div>
+          <div><div className="text-[11px]" style={{color:"var(--text-3)"}}>Starts</div><div className="text-[18px] font-semibold mono num-tight">4,210</div></div>
+          <div><div className="text-[11px]" style={{color:"var(--text-3)"}}>Completion</div><div className="text-[18px] font-semibold mono num-tight" style={{color:"var(--pos)"}}>78%</div></div>
+          <div><div className="text-[11px]" style={{color:"var(--text-3)"}}>Avg. watch</div><div className="text-[18px] font-semibold mono num-tight">2:14</div></div>
+        </div>
+      </div>
+      <RatingBreakdown/>
+      <LatestFeedback/>
+    </div>
+  </div>
+);
+
+/* ---------- OVERVIEW V4: TIMELINE / JOURNEY ---------- */
+const OverviewV4 = ()=>{
+  const W = 1160, H = 220, pad = 40;
+  const xs = STEPS.map((s,i)=> pad + (i*(W-pad*2))/(STEPS.length-1));
+  const ys = STEPS.map(s => pad + (H-pad*2) * (1 - s.completion/100));
+  const path = xs.map((x,i)=> `${i===0?"M":"L"} ${x} ${ys[i]}`).join(" ");
+  const area = `M ${xs[0]} ${H-pad} ` + xs.map((x,i)=> `L ${x} ${ys[i]}`).join(" ") + ` L ${xs[xs.length-1]} ${H-pad} Z`;
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-5 gap-4">
+        <Kpi label="Impressions" value="12,480" delta="+12.4%" deltaKind="pos" icon={I.eye}/>
+        <Kpi label="Starts" value="4,210" delta="+8.1%" deltaKind="pos" icon={I.play}/>
+        <Kpi label="Completion" value="78%" delta="+2.1pp" deltaKind="pos" icon={I.flag}/>
+        <Kpi label="Avg. watch" value="2:14" sub="/ 2:48" delta="+0:08" deltaKind="pos" icon={I.clock}/>
+        <Kpi label="Avg. rating" value="4.7" sub="/ 5.0" delta="+0.2" deltaKind="pos" icon={I.sparkle}/>
+      </div>
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-[15px] font-semibold">User journey</h3>
+            <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Completion curve across all 8 steps. Red markers = drop-off spikes.</div>
+          </div>
+          <button className="btn btn-accent">{I.extOpen}<span>Open in Editor</span></button>
+        </div>
+        <div className="relative" style={{height:H}}>
+          <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block">
+            <defs>
+              <linearGradient id="jArea" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="oklch(0.64 0.18 28)" stopOpacity=".22"/>
+                <stop offset="1" stopColor="oklch(0.64 0.18 28)" stopOpacity="0"/>
+              </linearGradient>
+            </defs>
+            {[0,25,50,75,100].map(v=>{
+              const y = pad + (H-pad*2)*(1-v/100);
+              return <g key={v}><line x1={pad} x2={W-pad} y1={y} y2={y} stroke="#E8E8EB" strokeDasharray="3 4"/><text x={8} y={y+3} fontSize="10" fill="#A1A1AA" fontFamily="ui-monospace">{v}%</text></g>;
+            })}
+            <path d={area} fill="url(#jArea)"/>
+            <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2.5"/>
+            {STEPS.map((s,i)=>(
+              <g key={s.n}>
+                <circle cx={xs[i]} cy={ys[i]} r="5" fill="#fff" stroke="var(--accent)" strokeWidth="2.5"/>
+                {s.drop>=5 && <circle cx={xs[i]} cy={ys[i]} r="10" fill="none" stroke="var(--neg)" strokeWidth="1.5" strokeDasharray="3 3"/>}
+              </g>
+            ))}
+          </svg>
+        </div>
+        <div className="mt-3 grid gap-2" style={{gridTemplateColumns:`repeat(${STEPS.length}, minmax(0,1fr))`}}>
+          {STEPS.map(s=>(
+            <div key={s.n} className="p-2.5 rounded-lg border hairline group cursor-pointer hover:border-zinc-400 transition" style={{background:"#FAFAFA"}}>
+              <div className="flex items-center justify-between">
+                <div className="text-[10.5px] mono" style={{color:"var(--text-3)"}}>Step {s.n}</div>
+                <div className="text-[11.5px] font-semibold mono" style={{color:completionColor(s.completion)}}>{s.completion}%</div>
+              </div>
+              <div className="w-full h-9 rounded-md mt-1.5 relative overflow-hidden" style={{background:thumbBg(s.n)}}>
+                {s.hasVideo && <div className="absolute bottom-0.5 right-0.5"><Bubble seed={0} size={12} initials="AK"/></div>}
+              </div>
+              <div className="text-[11.5px] font-medium mt-1.5 line-clamp-1">{s.title}</div>
+              {s.drop>=5 && <div className="mt-1 flex items-center gap-1 text-[10.5px]" style={{color:"var(--neg)"}}>{I.warn}<span>−{s.drop}%</span></div>}
+              <button className="btn w-full justify-center mt-2 text-[11px] py-1 opacity-0 group-hover:opacity-100">{I.extOpen}<span>Edit</span></button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <RatingBreakdown/>
+        <LatestFeedback/>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- TWEAKS PANEL ---------- */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "overviewLayout": "classic"
+}/*EDITMODE-END*/;
+
+const LAYOUTS = [
+  {v:"classic",l:"Classic split",d:"KPIs · funnel · steps · ratings"},
+  {v:"funnel",l:"Funnel-first",d:"Steps ARE the funnel bars"},
+  {v:"narrative",l:"Two-column",d:"Steps list + sticky analytics rail"},
+  {v:"journey",l:"Journey curve",d:"Completion curve over step cards"},
+];
+
+const TweaksPanel = ({open, onClose, layout, setLayout})=>{
+  if(!open) return null;
+  return (
+    <div className="fixed bottom-6 right-6 z-50 card p-4 w-[320px]" style={{boxShadow:"0 20px 40px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08)"}}>
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="text-[13px] font-semibold">Tweaks</div>
+          <div className="text-[11.5px]" style={{color:"var(--text-3)"}}>Overview layout variations</div>
+        </div>
+        <button onClick={onClose} className="p-1 rounded hover:bg-zinc-100" style={{color:"var(--text-3)"}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {LAYOUTS.map(o=>(
+          <button key={o.v} onClick={()=>setLayout(o.v)} className="flex items-start gap-2.5 p-2.5 rounded-lg border hairline text-left hover:bg-[#FAFAFA]" style={{borderColor:layout===o.v?"var(--text)":"var(--border)",background:layout===o.v?"#FAFAFA":"#fff"}}>
+            <span className={"radio mt-0.5 " + (layout===o.v?"on":"")}/>
+            <div className="flex-1">
+              <div className="text-[12.5px] font-medium">{o.l}</div>
+              <div className="text-[11px] mt-0.5" style={{color:"var(--text-3)"}}>{o.d}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+      <div className="text-[11px] mt-3 pt-3 border-t hairline" style={{color:"var(--text-3)"}}>Toggle Tweaks mode off to hide this panel.</div>
+    </div>
+  );
+};
+
+const App = ()=>{
+  const [active,setActive] = useState("overview");
+  const [published,setPublished] = useState(true);
+  const [embedEnabled,setEmbedEnabled] = useState(true);
+  const [detection,setDetection] = useState("detected");
+  const [layout,setLayoutState] = useState(TWEAK_DEFAULTS.overviewLayout || "classic");
+  const [tweaksOpen,setTweaksOpen] = useState(false);
+
+  React.useEffect(()=>{
+    const handler = (e)=>{
+      const d = e.data;
+      if(!d || typeof d!=="object") return;
+      if(d.type==="__activate_edit_mode") setTweaksOpen(true);
+      if(d.type==="__deactivate_edit_mode") setTweaksOpen(false);
+    };
+    window.addEventListener("message", handler);
+    try{ window.parent.postMessage({type:"__edit_mode_available"}, "*"); }catch(e){}
+    return ()=> window.removeEventListener("message", handler);
+  },[]);
+
+  const setLayout = (v)=>{
+    setLayoutState(v);
+    try{ window.parent.postMessage({type:"__edit_mode_set_keys", edits:{overviewLayout:v}}, "*"); }catch(e){}
+  };
+  return (
+    <div className="min-h-screen flex">
+      <Sidebar/>
+      <main className="flex-1 min-w-0 py-6 pr-6">
+        <div className="max-w-[1240px] mx-auto px-6 flex flex-col gap-5">
+          <div className="flex items-center gap-2 -mb-1">
+            <a href="Guides.html" className="btn"><span>{I.back}</span>Back</a>
+            <div className="text-[12.5px]" style={{color:"var(--text-3)"}}>Saved 2m ago · auto-syncs with extension</div>
+          </div>
+
+          <Hero published={published} setPublished={setPublished}/>
+
+          <Tabs active={active} setActive={setActive}/>
+
+          {active==="overview" && layout==="classic" && <OverviewV1/>}
+          {active==="overview" && layout==="funnel" && <OverviewV2/>}
+          {active==="overview" && layout==="narrative" && <OverviewV3/>}
+          {active==="overview" && layout==="journey" && <OverviewV4/>}
+
+          {active==="embed" && (
+            <div className="flex flex-col gap-5">
+              <PixelSection embedEnabled={embedEnabled} setEmbedEnabled={setEmbedEnabled} detection={detection} setDetection={setDetection}/>
+              <RevealButtonSection/>
+              <DynamicLinkSection/>
+            </div>
+          )}
+
+          {active==="behavior" && <BehaviorPanel/>}
+
+          <div className="pt-2 pb-8 text-[11.5px] mono flex items-center justify-between" style={{color:"var(--text-3)"}}>
+            <div>Guide ID · gd_8f4e_a1c0_welcome</div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5"><span className="dot" style={{background:"var(--pos)"}}/>Extension connected</span>
+              <span>Last edited 2h ago in Chrome</span>
+            </div>
+          </div>
+        </div>
+      </main>
+      <TweaksPanel open={tweaksOpen} onClose={()=>setTweaksOpen(false)} layout={layout} setLayout={setLayout}/>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

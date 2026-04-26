@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>Reveal — Checklists</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#F4F4F5;--card:#fff;--border:#E8E8EB;--border-strong:#DCDCE0;--text:#18181B;--text-2:#52525B;--text-3:#A1A1AA;--accent:oklch(0.64 0.18 28);--accent-soft:oklch(0.96 0.04 28);--pos:oklch(0.64 0.14 150);--neg:oklch(0.62 0.17 25);--draft:oklch(0.65 0.12 75);}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-feature-settings:"cv11","ss01";}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px rgba(24,24,27,.04);}
+.hairline{border-color:var(--border);}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;}
+.dot{width:6px;height:6px;border-radius:999px;display:inline-block;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text);transition:all .15s;white-space:nowrap;cursor:pointer;}
+.btn:hover{background:#FAFAFA;border-color:var(--border-strong);}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text);} .btn-primary:hover{background:#000;}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);} .btn-accent:hover{filter:brightness(.96);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;font-size:13.5px;color:var(--text-2);font-weight:500;cursor:pointer;transition:all .12s;}
+.nav-item:hover{background:#F4F4F5;color:var(--text);} .nav-item.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(24,24,27,.06);border:1px solid var(--border);}
+.mono{font-feature-settings:"tnum";}
+::-webkit-scrollbar{width:10px;} ::-webkit-scrollbar-thumb{background:#D4D4D8;border-radius:10px;border:2px solid var(--bg);}
+@keyframes pulseRec{0%,100%{opacity:1;}50%{opacity:.4;}} .rec{animation:pulseRec 1.4s ease-in-out infinite;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;display:flex;align-items:center;justify-content:center;}
+.chk{width:16px;height:16px;border:1.5px solid #C4C4C8;border-radius:4px;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.chk.on{background:var(--text);border-color:var(--text);color:#fff;}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useMemo} = React;
+
+const Icon = ({d,size=16,sw=1.6,fill="none"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>);
+const I={
+  home:<Icon d={<><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></>}/>,
+  guides:<Icon d={<><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14l4 2.5L8 19z" fill="currentColor" stroke="none"/></>}/>,
+  checklist:<Icon d={<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 10h10"/><path d="M7 14h6"/><path d="M15 14l1.5 1.5L19 12"/></>}/>,
+  settings:<Icon d={<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.3l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1A2 2 0 1 1 19.7 7l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></>}/>,
+  ext:<Icon d={<><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><circle cx="16.5" cy="16.5" r="3.5"/></>}/>,
+  search:<Icon d={<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>}/>,
+  chev:<Icon d={<path d="m6 9 6 6 6-6"/>}/>,
+  chevR:<Icon d={<path d="m9 6 6 6-6 6"/>} size={14}/>,
+  dots:<Icon d={<><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></>}/>,
+  plus:<Icon d={<><path d="M12 5v14"/><path d="M5 12h14"/></>}/>,
+  play:<Icon d={<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>}/>,
+  close:<Icon d={<><path d="M6 6l12 12"/><path d="M18 6 6 18"/></>} size={14}/>,
+  check:<Icon d={<path d="m5 12 5 5L20 7"/>} size={14} sw={2}/>,
+  flag:<Icon d={<><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/></>} size={14}/>,
+  eye:<Icon d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></>} size={14}/>,
+  user:<Icon d={<><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></>} size={14}/>,
+  clock:<Icon d={<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>} size={14}/>,
+};
+
+const Bubble = ({seed=0,size=32,initials})=>{
+  const P=[["#F4C89A","#E5876B"],["#B8D4E3","#6B8FA6"],["#D4C5E8","#8B72B8"],["#9AD4B8","#5A9E7C"],["#F0B8C4","#C96B84"],["#E8D79C","#B89A4E"],["#C4D4E8","#7A8FA6"],["#D8C4A8","#9E7E5A"]];
+  const [a,b]=P[seed%P.length]; const id=`bbl${seed}${size}`;
+  return(<svg width={size} height={size} viewBox="0 0 40 40" className="rounded-full block flex-shrink-0">
+    <defs><radialGradient id={id} cx=".4" cy=".35" r=".8"><stop offset="0" stopColor={a}/><stop offset="1" stopColor={b}/></radialGradient></defs>
+    <circle cx="20" cy="20" r="20" fill={`url(#${id})`}/>
+    <circle cx="20" cy="16" r="5.2" fill="rgba(255,255,255,.45)"/>
+    <path d="M9 34c2-5 6-7.5 11-7.5S29 29 31 34" fill="rgba(255,255,255,.45)"/>
+    {initials&&<text x="20" y="23" textAnchor="middle" fontFamily="Inter" fontWeight="600" fontSize="11" fill="rgba(24,24,27,.55)">{initials}</text>}
+  </svg>);
+};
+
+/* ── Sidebar ── */
+const Sidebar = ()=>(
+  <aside className="w-[244px] shrink-0 px-3 py-3 flex flex-col" style={{height:"100vh",position:"sticky",top:0}}>
+    <button className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white text-left w-full">
+      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white" style={{background:"var(--text)"}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
+      </div>
+      <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold truncate">Figmark Studio</div><div className="text-[11px] mono" style={{color:"var(--text-3)"}}>figmark · Pro</div></div>
+      <span style={{color:"var(--text-3)"}}>{I.chev}</span>
+    </button>
+    <div className="mt-3 relative">
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{color:"var(--text-3)"}}>{I.search}</span>
+      <input placeholder="Search guides…" className="w-full bg-white border hairline rounded-lg pl-8 pr-3 py-2 text-[13px] outline-none"/>
+    </div>
+    <nav className="mt-3 flex flex-col gap-0.5">
+      <a href="Home.html" className="nav-item">{I.home}<span>Home</span></a>
+      <a href="Guides.html" className="nav-item">{I.guides}<span>Guides</span><span className="ml-auto mono text-[10.5px]" style={{color:"var(--text-3)"}}>12</span></a>
+      <div className="nav-item active">{I.checklist}<span>Checklists</span></div>
+      <a href="Settings.html" className="nav-item">{I.settings}<span>Settings</span></a>
+    </nav>
+    <div className="mt-4 px-2 text-[10.5px] mono uppercase tracking-wider" style={{color:"var(--text-3)"}}>Pinned</div>
+    <nav className="mt-1 flex flex-col gap-0.5">
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--pos)"}}/><span>Onboarding checklist</span></div>
+      <div className="nav-item"><span className="w-1.5 h-1.5 rounded-full" style={{background:"var(--draft)"}}/><span>Advanced features</span></div>
+    </nav>
+    <div className="mt-auto flex flex-col gap-2">
+      <div className="card p-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.ext}</div>
+          <div className="flex-1"><div className="text-[12.5px] font-semibold">Reveal for Chrome</div><div className="text-[11px]" style={{color:"var(--text-2)"}}>v2.4.1 — up to date</div></div>
+        </div>
+        <button className="btn w-full mt-2.5 justify-center text-[12.5px]">Open editor</button>
+      </div>
+      <div className="flex items-center gap-2 px-1.5 py-1.5">
+        <Bubble seed={7} size={28} initials="AK"/>
+        <div className="flex-1 min-w-0"><div className="text-[12.5px] font-medium truncate">Alex Kowalski</div><div className="text-[11px] mono truncate" style={{color:"var(--text-3)"}}>alex@figmark.co</div></div>
+        <button className="p-1 rounded hover:bg-zinc-100" style={{color:"var(--text-3)"}}>{I.dots}</button>
+      </div>
+    </div>
+  </aside>
+);
+
+/* ── Data ── */
+const allGuides = [
+  {id:1,title:"Get started with Acme",steps:8,completion:78,seed:0},
+  {id:2,title:"Set up your workspace",steps:5,completion:84,seed:1},
+  {id:3,title:"Invite your team",steps:4,completion:67,seed:2},
+  {id:4,title:"Connect your first integration",steps:6,completion:null,seed:3},
+  {id:5,title:"What's new in v4.2",steps:7,completion:41,seed:4},
+  {id:6,title:"Advanced keyboard shortcuts",steps:6,completion:54,seed:6},
+  {id:7,title:"Export data to CSV",steps:3,completion:89,seed:7},
+  {id:8,title:"Customize notifications",steps:5,completion:72,seed:1},
+  {id:9,title:"Billing & plan management",steps:7,completion:null,seed:5},
+  {id:10,title:"Two-factor authentication",steps:4,completion:81,seed:3},
+  {id:11,title:"Using templates",steps:4,completion:62,seed:2},
+  {id:12,title:"Onboard a new client",steps:9,completion:null,seed:5},
+];
+
+const checklistsData = [
+  {
+    id:1, title:"New user onboarding", status:"published",
+    desc:"Walk new signups through everything they need to be productive on day one.",
+    audience:"New users", guides:[1,2,3,4], completion:72, starts:3840, updated:"2h ago",
+    author:{seed:0,initials:"AK"}, color:"#18181B",
+  },
+  {
+    id:2, title:"Admin setup", status:"published",
+    desc:"For workspace admins — billing, team management, and integration setup.",
+    audience:"Admins", guides:[2,9,3,10], completion:61, starts:420, updated:"3d ago",
+    author:{seed:2,initials:"MR"}, color:"#6B8FA6",
+  },
+  {
+    id:3, title:"What's new · Q2 2026", status:"published",
+    desc:"Feature highlights for existing users upgrading to the latest release.",
+    audience:"All users", guides:[5,6,7], completion:48, starts:2110, updated:"1w ago",
+    author:{seed:4,initials:"JS"}, color:"#8B72B8",
+  },
+  {
+    id:4, title:"Power user track", status:"draft",
+    desc:"Advanced features for users who want to get the most out of Acme.",
+    audience:"Power users", guides:[6,7,8,11], completion:null, starts:0, updated:"2d ago",
+    author:{seed:0,initials:"AK"}, color:"#5A9E7C",
+  },
+  {
+    id:5, title:"Enterprise onboarding", status:"draft",
+    desc:"Multi-team setup for enterprise accounts with SSO and custom workflows.",
+    audience:"Enterprise", guides:[2,3,9,10,12], completion:null, starts:0, updated:"5d ago",
+    author:{seed:2,initials:"MR"}, color:"#C96B84",
+  },
+];
+
+/* ── Guide thumb ── */
+const GuidePoster = ({seed,size=28})=>{
+  const bgs=[["#FDF7EC","#F3E1BF"],["#EEF3FB","#D8E4F4"],["#F3ECFB","#DDCEF0"],["#ECF7F1","#CDE5D7"],["#FBECEF","#F2CDD5"],["#FAF4E0","#EADEA9"],["#F0F4F9","#D6DEE8"],["#F6F1EB","#E2D4C1"]];
+  const [a,b]=bgs[seed%bgs.length];
+  return <div className="rounded-md shrink-0 relative" style={{width:size,height:size,background:`linear-gradient(135deg,${a} 0%,${b} 100%)`}}/>;
+};
+
+/* ── Checklist card ── */
+const ChecklistCard = ({cl})=>{
+  const guides = cl.guides.map(id=>allGuides.find(g=>g.id===id)).filter(Boolean);
+  const isDraft = cl.status==="draft";
+  return (
+    <a href="Checklist Detail.html" className={"card overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow " + (isDraft?"opacity-90":"")} style={{borderStyle:isDraft?"dashed":"solid",textDecoration:"none",color:"inherit"}}>
+      {/* colour band header */}
+      <div className="relative px-5 pt-5 pb-4" style={{background: isDraft?"#FAFAFA": `linear-gradient(135deg, ${cl.color}12 0%, ${cl.color}06 100%)`}}>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            {isDraft
+              ? <span className="chip" style={{background:"oklch(0.97 0.03 75)",color:"var(--draft)"}}><span className="dot" style={{background:"var(--draft)"}}/>Draft</span>
+              : <span className="chip" style={{background:"oklch(0.96 0.05 150)",color:"var(--pos)"}}><span className="dot" style={{background:"var(--pos)"}}/>Published</span>}
+            <h3 className="text-[15.5px] font-semibold mt-1.5">{cl.title}</h3>
+            <p className="text-[12.5px] mt-1 line-clamp-2" style={{color:"var(--text-2)"}}>{cl.desc}</p>
+          </div>
+          <button className="p-1 rounded hover:bg-black/5 shrink-0" style={{color:"var(--text-3)"}} onClick={e=>{e.preventDefault();e.stopPropagation();}}>{I.dots}</button>
+        </div>
+        {/* guide stack preview */}
+        <div className="flex items-center gap-1.5 mt-3">
+          {guides.slice(0,4).map((g,i)=><GuidePoster key={g.id} seed={g.seed} size={24}/>)}
+          {guides.length>4 && <span className="text-[11.5px] mono" style={{color:"var(--text-3)"}}>+{guides.length-4}</span>}
+          <span className="text-[12px] ml-1" style={{color:"var(--text-3)"}}>{guides.length} guide{guides.length!==1?"s":""}</span>
+        </div>
+      </div>
+
+      <div className="px-5 py-4 flex flex-col gap-3 flex-1">
+        {!isDraft ? (
+          <>
+            <div>
+              <div className="flex items-center justify-between text-[11.5px] mb-1.5" style={{color:"var(--text-3)"}}>
+                <span>Full completion</span>
+                <span className="mono font-medium" style={{color:"var(--text)"}}>{cl.completion}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+                <div className="h-full rounded-full" style={{width:`${cl.completion}%`,background: cl.completion>=70?"var(--pos)":cl.completion>=50?"var(--draft)":"var(--neg)"}}/>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-[12.5px]" style={{color:"var(--text-2)"}}>
+              <span className="flex items-center gap-1.5">{I.user}<span className="mono">{cl.starts.toLocaleString()} starts</span></span>
+              <span className="flex items-center gap-1.5">{I.user}<span>{cl.audience}</span></span>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-between p-2.5 rounded-md border hairline" style={{background:"#fff"}}>
+            <span className="text-[12px]" style={{color:"var(--text-2)"}}>Finish and publish to go live</span>
+            <button className="text-[12px] font-medium" style={{color:"var(--accent)"}}>Continue →</button>
+          </div>
+        )}
+        <div className="flex items-center justify-between text-[11.5px] pt-1 border-t hairline" style={{color:"var(--text-3)"}}>
+          <div className="flex items-center gap-1.5"><Bubble seed={cl.author.seed} size={16} initials={cl.author.initials}/><span>{cl.updated}</span></div>
+          <button className="text-[12px] flex items-center gap-0.5 font-medium" style={{color:"var(--text-2)"}}>View {I.chevR}</button>
+        </div>
+      </div>
+    </a>
+  );
+};
+
+/* ── Create checklist modal ── */
+const CreateModal = ({onClose})=>{
+  const [step,setStep] = useState(1); // 1=name, 2=pick guides
+  const [title,setTitle] = useState("");
+  const [desc,setDesc] = useState("");
+  const [audience,setAudience] = useState("new");
+  const [picked,setPicked] = useState(new Set());
+  const toggle = id => { const n=new Set(picked); n.has(id)?n.delete(id):n.add(id); setPicked(n); };
+
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="card w-[640px] overflow-hidden flex flex-col" style={{maxHeight:"80vh",boxShadow:"0 24px 60px rgba(0,0,0,.18)"}} onClick={e=>e.stopPropagation()}>
+        {/* header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b hairline">
+          <div>
+            <div className="text-[15px] font-semibold">{step===1?"New checklist":"Add guides"}</div>
+            <div className="text-[12px] mt-0.5" style={{color:"var(--text-3)"}}>Step {step} of 2</div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100" style={{color:"var(--text-3)"}}>{I.close}</button>
+        </div>
+
+        {/* step indicator */}
+        <div className="flex gap-1 px-6 pt-4">
+          {[1,2].map(s=>(
+            <div key={s} className="flex-1 h-1 rounded-full" style={{background: s<=step?"var(--text)":"#E4E4E7"}}/>
+          ))}
+        </div>
+
+        {step===1 && (
+          <div className="px-6 py-5 flex flex-col gap-4 overflow-y-auto">
+            <div>
+              <label className="text-[12.5px] font-medium block mb-1.5">Checklist name</label>
+              <input className="w-full border hairline rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:border-zinc-400" placeholder="e.g. New user onboarding" value={title} onChange={e=>setTitle(e.target.value)}/>
+            </div>
+            <div>
+              <label className="text-[12.5px] font-medium block mb-1.5">Description <span style={{color:"var(--text-3)",fontWeight:400}}>(optional)</span></label>
+              <textarea className="w-full border hairline rounded-lg px-3 py-2.5 text-[13.5px] outline-none focus:border-zinc-400 resize-none" rows={3} placeholder="What will users learn from this checklist?" value={desc} onChange={e=>setDesc(e.target.value)}/>
+            </div>
+            <div>
+              <label className="text-[12.5px] font-medium block mb-1.5">Target audience</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[{v:"new",l:"New users",d:"First session on your domain"},
+                  {v:"returning",l:"Returning users",d:"Users who've signed in before"},
+                  {v:"all",l:"All users",d:"Everyone on your platform"},
+                  {v:"custom",l:"Custom segment",d:"Filter by user properties"},
+                ].map(o=>(
+                  <button key={o.v} onClick={()=>setAudience(o.v)} className="text-left p-3 rounded-lg border hairline" style={{borderColor:audience===o.v?"var(--text)":"var(--border)",background:audience===o.v?"#FAFAFA":"#fff"}}>
+                    <div className="flex items-center gap-2">
+                      <div className={"w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center " + (audience===o.v?"border-zinc-900":"border-zinc-300")}>
+                        {audience===o.v && <div className="w-1.5 h-1.5 rounded-full bg-zinc-900"/>}
+                      </div>
+                      <span className="text-[13px] font-medium">{o.l}</span>
+                    </div>
+                    <div className="text-[11.5px] mt-0.5 pl-5" style={{color:"var(--text-3)"}}>{o.d}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step===2 && (
+          <div className="flex flex-col overflow-hidden flex-1">
+            <div className="px-6 py-3 border-b hairline">
+              <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>Select the guides to include. You can reorder them on the checklist detail page.</div>
+              <div className="mt-2 relative">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{color:"var(--text-3)"}}>{I.search}</span>
+                <input className="w-full border hairline rounded-lg pl-8 pr-3 py-2 text-[13px] outline-none" placeholder="Search guides…"/>
+              </div>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              {allGuides.map((g,i)=>(
+                <div key={g.id} onClick={()=>toggle(g.id)} className={"flex items-center gap-3 px-6 py-3 cursor-pointer hover:bg-[#FAFAFA] " + (i<allGuides.length-1?"border-b hairline":"")} style={{background:picked.has(g.id)?"#FAFAFA":"#fff"}}>
+                  <div className={"chk " + (picked.has(g.id)?"on":"")}>
+                    {picked.has(g.id) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="m5 12 5 5L20 7"/></svg>}
+                  </div>
+                  <GuidePoster seed={g.seed} size={36}/>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13.5px] font-medium">{g.title}</div>
+                    <div className="text-[11.5px] mono" style={{color:"var(--text-3)"}}>{g.steps} steps{g.completion!==null ? ` · ${g.completion}% completion`:""}</div>
+                  </div>
+                  {picked.has(g.id) && <span className="chip" style={{background:"oklch(0.96 0.05 150)",color:"var(--pos)"}}>{I.check}Added</span>}
+                </div>
+              ))}
+            </div>
+            {picked.size>0 && (
+              <div className="px-6 py-3 border-t hairline" style={{background:"#FAFAFA"}}>
+                <div className="text-[12.5px]" style={{color:"var(--text-2)"}}>{picked.size} guide{picked.size!==1?"s":""} selected</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* footer */}
+        <div className="flex items-center justify-between px-6 py-4 border-t hairline">
+          <button onClick={onClose} className="btn">Cancel</button>
+          <div className="flex items-center gap-2">
+            {step===2 && <button onClick={()=>setStep(1)} className="btn">Back</button>}
+            {step===1
+              ? <button onClick={()=>setStep(2)} disabled={!title.trim()} className={"btn btn-primary " + (!title.trim()?"opacity-40 pointer-events-none":"")}>Next → Add guides</button>
+              : <button onClick={onClose} disabled={picked.size===0} className={"btn btn-accent " + (picked.size===0?"opacity-40 pointer-events-none":"")}>Create checklist</button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Main ── */
+const App = ()=>{
+  const [tab,setTab] = useState("all");
+  const [creating,setCreating] = useState(false);
+
+  const counts = {all:checklistsData.length, published:checklistsData.filter(c=>c.status==="published").length, draft:checklistsData.filter(c=>c.status==="draft").length};
+  const filtered = tab==="all"? checklistsData : checklistsData.filter(c=>c.status===tab);
+
+  return (
+    <div className="min-h-screen flex">
+      <Sidebar/>
+      <main className="flex-1 min-w-0 py-6 pr-6">
+        <div className="max-w-[1180px] mx-auto px-6 flex flex-col gap-5">
+          {/* header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-[28px] font-semibold" style={{letterSpacing:"-.02em"}}>Checklists</h1>
+                <span className="chip" style={{background:"#F4F4F5",color:"var(--text-2)"}}>{counts.all} total</span>
+              </div>
+              <div className="text-[13.5px] mt-1" style={{color:"var(--text-2)"}}>Group guides into ordered journeys. New users complete them step-by-step to master your product.</div>
+            </div>
+            <button onClick={()=>setCreating(true)} className="btn btn-accent">{I.plus}<span>New checklist</span></button>
+          </div>
+
+          {/* tab bar */}
+          <div className="flex items-center gap-1 p-1 rounded-lg w-fit" style={{background:"#ECECF0"}}>
+            {[{id:"all",l:"All",c:counts.all},{id:"published",l:"Published",c:counts.published,dot:"var(--pos)"},{id:"draft",l:"Drafts",c:counts.draft,dot:"var(--draft)"}].map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} className={"flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium " + (tab===t.id?"bg-white text-zinc-900 shadow-sm border hairline":"text-zinc-500")}>
+                {t.dot && <span className="dot" style={{background:t.dot}}/>}
+                {t.l}<span className="text-[11px] mono" style={{color:"var(--text-3)"}}>{t.c}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* grid */}
+          <div className="grid grid-cols-3 gap-4">
+            {filtered.map(cl=><ChecklistCard key={cl.id} cl={cl}/>)}
+            {/* new checklist ghost card */}
+            <button onClick={()=>setCreating(true)} className="rounded-[14px] border border-dashed hairline flex flex-col items-center justify-center gap-3 py-12 hover:bg-white transition-colors cursor-pointer" style={{minHeight:240}}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:"var(--accent-soft)",color:"var(--accent)"}}>{I.plus}</div>
+              <div className="text-[13px] font-medium" style={{color:"var(--text-2)"}}>New checklist</div>
+              <div className="text-[12px]" style={{color:"var(--text-3)"}}>Group guides into a journey</div>
+            </button>
+          </div>
+
+          {/* footer */}
+          <div className="flex items-center justify-between pt-1 pb-8 text-[11.5px] mono" style={{color:"var(--text-3)"}}>
+            <div>Showing {filtered.length} of {counts.all} checklists</div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5"><span className="dot" style={{background:"var(--pos)"}}/>{counts.published} published</span>
+              <span className="flex items-center gap-1.5"><span className="dot" style={{background:"var(--draft)"}}/>{counts.draft} drafts</span>
+            </div>
+          </div>
+        </div>
+      </main>
+      {creating && <CreateModal onClose={()=>setCreating(false)}/>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
